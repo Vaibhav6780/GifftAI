@@ -4,7 +4,7 @@ export const site = {
   url: "https://gifftai.com",
   tagline: "We build software that moves businesses forward.",
   description:
-    "GIFFT AI designs and engineers web applications, SaaS platforms, AI systems and business software built for real-world scale.",
+    "GIFFT AI is a software engineering studio with 25 years of service, designing and engineering web applications, SaaS platforms, AI systems and business software built for real-world scale.",
   // ---- Editable contact information -------------------------------------
   contact: {
     email: "gifftaimktg@gmail.com",

@@ -12,7 +12,7 @@ import {
 export const metadata: Metadata = {
   title: "We solve hard software problems",
   description:
-    "GIFFT AI is a small, senior software engineering and product studio. What we believe, how we work, and the people behind the work.",
+    "GIFFT AI is a senior software engineering and product studio with 25 years of service. What we believe, how we work, and the people behind the work.",
   alternates: { canonical: "/about" },
 };
 
@@ -22,7 +22,7 @@ export default function AboutPage() {
       <PageHeader
         eyebrow="About"
         title="We solve difficult software problems."
-        subtitle="A small, senior studio that builds business-critical software and remains involved with it after launch."
+        subtitle="A senior software studio with 25 years of service, building business-critical systems and staying involved with them after launch."
       />
 
       {/* Company story */}

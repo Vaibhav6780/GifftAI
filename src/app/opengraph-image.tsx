@@ -46,8 +46,8 @@ export default function OGImage() {
             <span style={{ color: "#f06c44" }}>businesses</span> forward.
           </div>
           <div style={{ fontSize: 26, color: "#8f8e87", maxWidth: 780 }}>
-            Web applications, SaaS platforms, AI systems and business software
-            built for real-world scale.
+            25 years of service — web applications, SaaS platforms, AI systems
+            and business software built for real-world scale.
           </div>
         </div>
       </div>

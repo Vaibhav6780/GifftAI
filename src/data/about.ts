@@ -5,8 +5,8 @@
  */
 
 export const companyStory = [
-  "GIFFT AI is a software engineering and product studio. We work with organisations that have outgrown off-the-shelf tools and require systems built around the way they operate.",
-  "Our team is small and senior. The people who scope a project are the people who deliver it, from architecture and data modelling through to production rollout.",
+  "GIFFT AI is a software engineering and product studio with 25 years of service. We work with organisations that have outgrown off-the-shelf tools and require systems built around the way they operate.",
+  "Our team is senior and hands-on. The people who scope a project are the people who deliver it, from architecture and data modelling through to production rollout.",
   "// Replace this section with your real founding story, mission and the kind of work you want to be known for.",
 ];
 
@@ -14,9 +14,9 @@ export type TimelineEntry = { year: string; title: string; body: string };
 
 export const timeline: TimelineEntry[] = [
   {
-    year: "20XX",
+    year: "2001",
     title: "Founded",
-    body: "// Add the year GIFFT AI was founded and the reason it started.",
+    body: "GIFFT AI is established as a software engineering studio. // Confirm the exact year and add the reason it started.",
   },
   {
     year: "20XX",

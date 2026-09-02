@@ -9,7 +9,7 @@ import { HomeServices } from "@/components/HomeServices";
 export const metadata: Metadata = {
   title: "We build software that moves businesses forward",
   description:
-    "GIFFT AI is a software engineering and product studio. We design and build web applications, SaaS platforms, AI systems and business software for ambitious companies.",
+    "GIFFT AI is a software engineering and product studio with 25 years of service. We design and build web applications, SaaS platforms, AI systems and business software for ambitious companies.",
   alternates: { canonical: "/" },
 };
 

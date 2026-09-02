@@ -19,8 +19,9 @@ export function Footer() {
           <div className="flex flex-col gap-4">
             <Logo />
             <p className="max-w-xs text-sm leading-relaxed text-muted">
-              We design, build and scale software for ambitious companies —
-              from complex business systems to AI-powered products.
+              25 years of service. We design, build and scale software for
+              ambitious companies — from complex business systems to AI-powered
+              products.
             </p>
           </div>
 

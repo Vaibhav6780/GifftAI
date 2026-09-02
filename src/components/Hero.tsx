@@ -5,7 +5,7 @@ import { HeroComposition } from "./HeroComposition";
 import { MagneticButton, ArrowRight } from "./MagneticButton";
 
 const proof = [
-  { v: "6+", k: "systems delivered" },
+  { v: "25 years", k: "of service" },
   { v: "99.9%", k: "uptime target" },
   { v: "2 weeks", k: "to first release" },
 ];

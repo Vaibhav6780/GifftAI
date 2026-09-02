@@ -57,6 +57,9 @@ export const metadata: Metadata = {
     "software development services",
     "marketing technology",
     "competitive software development",
+    "25 years of service",
+    "25 years experience",
+    "established software company",
   ],
   authors: [{ name: site.name }],
   creator: site.name,
@@ -99,6 +102,23 @@ const themeScript = `
 })();
 `;
 
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: site.name,
+  url: site.url,
+  description: site.description,
+  foundingDate: "2001",
+  slogan: site.tagline,
+  sameAs: [site.contact.linkedin],
+  contactPoint: {
+    "@type": "ContactPoint",
+    contactType: "sales",
+    email: site.contact.email,
+    telephone: site.contact.phone,
+  },
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -112,6 +132,12 @@ export default function RootLayout({
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationJsonLd),
+          }}
+        />
       </head>
       <body className="min-h-screen font-sans antialiased">
         <ThemeProvider>
