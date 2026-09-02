@@ -14,7 +14,7 @@ export const services: Service[] = [
     title: "Custom Software",
     summary: "Business-specific software built around real workflows.",
     detail:
-      "When your process doesn't fit an off-the-shelf tool, we build the system that does — starting from how your team actually works, not from a feature list.",
+      "When your process does not fit an off-the-shelf tool, we build the system that does, starting from how your team works rather than from a predefined feature set.",
     deliverables: ["Workflow modelling", "System architecture", "Full-stack build", "Rollout & training"],
   },
   {
@@ -23,7 +23,7 @@ export const services: Service[] = [
     title: "SaaS Products",
     summary: "From MVP to scalable SaaS platforms.",
     detail:
-      "We take product ideas from a first working version to a platform that holds up under real customers — multi-tenancy, billing, permissions and the operational tooling around them.",
+      "We take product ideas from a first working version to a platform that performs reliably with a live customer base: multi-tenancy, billing, permissions and the operational tooling around them.",
     deliverables: ["Product engineering", "Multi-tenant architecture", "Billing & entitlements", "Admin & analytics"],
   },
   {
@@ -32,7 +32,7 @@ export const services: Service[] = [
     title: "AI & Automation",
     summary: "Intelligent workflows, AI systems and automation.",
     detail:
-      "We build AI features that are grounded, evaluated and safe to ship — retrieval systems, assistants and automations that remove real work instead of adding risk.",
+      "We build AI features that are grounded, evaluated and safe to deploy: retrieval systems, assistants and automations that reduce manual work without introducing unnecessary risk.",
     deliverables: ["Retrieval pipelines", "LLM orchestration", "Evaluation harnesses", "Workflow automation"],
   },
   {
@@ -41,7 +41,7 @@ export const services: Service[] = [
     title: "Web Applications",
     summary: "Modern, fast and scalable applications.",
     detail:
-      "Production web apps with the fundamentals right: performance, accessibility, observability and a codebase your team can keep building on.",
+      "Production web applications with the fundamentals in place: performance, accessibility, observability and a codebase your team can continue to develop.",
     deliverables: ["Frontend architecture", "Design system", "API integration", "Performance & Core Web Vitals"],
   },
   {
@@ -50,7 +50,7 @@ export const services: Service[] = [
     title: "Mobile Applications",
     summary: "iOS and Android products.",
     detail:
-      "Cross-platform mobile apps that feel native, work offline where they need to, and ship through a release pipeline you control.",
+      "Cross-platform mobile applications that behave like native apps, operate offline where required, and are released through a delivery pipeline you control.",
     deliverables: ["React Native / Expo", "Offline-first data", "App store delivery", "Crash & usage analytics"],
   },
   {
@@ -59,7 +59,7 @@ export const services: Service[] = [
     title: "CRM & ERP",
     summary: "Operational systems that centralize business processes.",
     detail:
-      "Operational software that brings quoting, delivery, inventory or finance into one place — shaped to your process rather than forcing your process into a template.",
+      "Operational software that brings quoting, delivery, inventory or finance into one place, shaped to your process rather than requiring your process to conform to a template.",
     deliverables: ["Process mapping", "Data model design", "Automation", "Reporting & forecasting"],
   },
   {
@@ -68,7 +68,7 @@ export const services: Service[] = [
     title: "APIs & Backend",
     summary: "Reliable APIs, integrations and backend architecture.",
     detail:
-      "The systems other systems depend on — well-designed APIs, resilient integrations, and backends with tracing, idempotency and clear failure behaviour.",
+      "The infrastructure that other systems depend on: well-designed APIs, resilient integrations, and backends with tracing, idempotency and clearly defined failure behaviour.",
     deliverables: ["API design", "Integration layers", "Event-driven services", "Observability"],
   },
   {
@@ -77,7 +77,7 @@ export const services: Service[] = [
     title: "Dashboards",
     summary: "Analytics, reporting and operational interfaces.",
     detail:
-      "Interfaces that turn data into decisions — operational dashboards, analytics and reporting built on models that stay correct as the business changes.",
+      "Interfaces that support decision-making: operational dashboards, analytics and reporting built on data models that remain accurate as the business changes.",
     deliverables: ["Metric modelling", "Data pipelines", "Visualisation", "Self-serve reporting"],
   },
 ];
@@ -92,27 +92,27 @@ export const processSteps: ProcessStep[] = [
   {
     index: "01",
     title: "Discover",
-    body: "We sit with the people who do the work, map the process end to end, and find where the real friction is — before writing any code.",
+    body: "We work directly with the people who carry out the process, map it end to end, and identify where the significant friction lies before any code is written.",
   },
   {
     index: "02",
     title: "Define",
-    body: "We turn the findings into a technical plan: scope, architecture, milestones and the trade-offs, written plainly enough to decide on.",
+    body: "We convert the findings into a technical plan covering scope, architecture, milestones and trade-offs, documented clearly enough to support a decision.",
   },
   {
     index: "03",
     title: "Build",
-    body: "We ship in working increments, in your environment, with tests and observability from the first commit — not bolted on later.",
+    body: "We deliver in working increments within your environment, with tests and observability included from the first commit rather than added later.",
   },
   {
     index: "04",
     title: "Launch",
-    body: "We roll out deliberately, with the team trained, the data migrated cleanly and a plan for the first weeks in production.",
+    body: "We roll out deliberately, with the team trained, the data migrated cleanly and a plan in place for the first weeks in production.",
   },
   {
     index: "05",
     title: "Scale",
-    body: "We measure what's actually happening, harden what's under load, and keep improving the system as the business grows into it.",
+    body: "We monitor how the system behaves in practice, reinforce the components under load, and continue improving it as the business grows.",
   },
 ];
 

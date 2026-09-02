@@ -17,7 +17,7 @@ export const technologyMap: TechCategory[] = [
   },
   {
     name: "Mobile",
-    note: "Cross-platform apps that feel native and ship on your schedule.",
+    note: "Cross-platform applications that behave like native apps and release on your schedule.",
     items: ["React Native", "Expo", "Swift", "Kotlin"],
   },
   {
@@ -27,7 +27,7 @@ export const technologyMap: TechCategory[] = [
   },
   {
     name: "AI",
-    note: "Grounded, evaluated AI systems — not demos.",
+    note: "Grounded, evaluated AI systems intended for production use.",
     items: ["Claude", "OpenAI", "LangGraph", "Vector search", "RAG pipelines", "Ragas"],
   },
   {

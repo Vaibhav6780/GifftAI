@@ -5,8 +5,8 @@
  */
 
 export const companyStory = [
-  "GIFFT AI is a software engineering and product studio. We work with companies that have outgrown off-the-shelf tools and need systems built around how they actually operate.",
-  "We keep the team small and senior. The people who scope your project are the people who build it — from architecture and data modelling through to the production rollout.",
+  "GIFFT AI is a software engineering and product studio. We work with organisations that have outgrown off-the-shelf tools and require systems built around the way they operate.",
+  "Our team is small and senior. The people who scope a project are the people who deliver it, from architecture and data modelling through to production rollout.",
   "// Replace this section with your real founding story, mission and the kind of work you want to be known for.",
 ];
 
@@ -63,22 +63,22 @@ export const team: TeamMember[] = [
 export const values = [
   {
     title: "Build for the real problem",
-    body: "We spend time understanding the work before proposing a system. The goal is to solve the problem in front of us, not to ship features.",
+    body: "We invest time in understanding the work before proposing a system. The objective is to resolve the underlying problem rather than to add features.",
   },
   {
     title: "Keep systems understandable",
-    body: "Clever is a liability. We favour architectures a new engineer can reason about, and codebases your team can keep building on.",
+    body: "We avoid unnecessary complexity. We favour architectures a new engineer can reason about and codebases your team can continue to build on.",
   },
   {
     title: "Design for scale",
-    body: "We build for the load you'll have in two years, not the demo you need next week — without over-engineering the parts that won't move.",
+    body: "We build for the load expected over the next two years rather than the immediate demo, without over-engineering the parts that will not change.",
   },
   {
     title: "Automate repetitive work",
-    body: "If a person does the same thing every day, that's a candidate for automation. We remove the busywork, carefully.",
+    body: "Where a task is performed the same way every day, it is a candidate for automation. We remove repetitive manual work methodically.",
   },
   {
     title: "Ship, measure and improve",
-    body: "We put working software in front of real users early, watch what actually happens, and iterate on evidence.",
+    body: "We put working software in front of users early, measure how it performs in practice, and iterate based on evidence.",
   },
 ];

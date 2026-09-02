@@ -122,7 +122,7 @@ export const projects: Project[] = [
     preview: "console",
     technologies: ["TypeScript", "Go", "PostgreSQL", "Kafka", "GCP"],
     challenge:
-      "Money moved through four providers, each with its own file format, settlement timing and fee model. Reconciliation was a monthly fire drill, and finance could never say with confidence that the books were correct.",
+      "Money moved through four providers, each with its own file format, settlement timing and fee model. Reconciliation was a manual month-end exercise, and finance could not state with confidence that the books were correct.",
     solution:
       "We built a double-entry ledger as the system of record and normalised every provider into a single transaction model feeding it. Reconciliation runs continuously, and discrepancies are flagged the moment they appear rather than at month end.",
     features: [
@@ -173,7 +173,7 @@ export const projects: Project[] = [
     challenge:
       "Support volume was growing faster than the team could hire. Off-the-shelf chatbots either hallucinated or deflected everything to a generic FAQ, and agents didn't trust them.",
     solution:
-      "We built a retrieval pipeline over the company's real content with strict grounding: the assistant only answers from retrieved passages, always cites them, and routes low-confidence questions straight to a human with the research it already did.",
+      "We built a retrieval pipeline over the company's own content with strict grounding: the assistant answers only from retrieved passages, always cites them, and routes low-confidence questions to a human agent together with the supporting material it has already gathered.",
     features: [
       { title: "Grounded drafting", body: "Replies are generated only from retrieved, cited source passages." },
       { title: "Confidence gating", body: "Low-confidence questions are escalated with context instead of guessed at." },
@@ -197,9 +197,9 @@ export const projects: Project[] = [
     ],
     results: [
       "Every answer traceable to a source",
-      "Clear escalation instead of confident guesses",
+      "Low-confidence questions escalated rather than answered speculatively",
       "Knowledge gaps made visible to the content team",
-      "Evaluation built in from day one",
+      "Evaluation built in from the outset",
     ],
     gallery: [
       { caption: "Draft with citations", preview: "graph" },
@@ -270,7 +270,7 @@ export const projects: Project[] = [
     preview: "browser",
     technologies: ["Next.js", "TypeScript", "Prisma", "PostgreSQL", "Vercel"],
     challenge:
-      "The team had bent a generic CRM so far out of shape that no one trusted its data. Half the process lived in side spreadsheets, and reporting was guesswork.",
+      "The team had customised a generic CRM so heavily that no one trusted its data. Half the process ran in separate spreadsheets, and reporting was largely estimated.",
     solution:
       "We rebuilt the CRM around the actual stages the business works in, with automation for the repetitive transitions and a clean data model underneath. Reporting comes straight from the pipeline, not a monthly export.",
     features: [
@@ -294,10 +294,10 @@ export const projects: Project[] = [
       { group: "DevOps", items: ["GitHub Actions", "Checkly"] },
     ],
     results: [
-      "One system the team actually trusts",
-      "Manual status-chasing largely removed",
+      "One system the team relies on",
+      "Manual status follow-up largely removed",
       "Renewals visible before they lapse",
-      "Reporting straight from the pipeline",
+      "Reporting drawn directly from the pipeline",
     ],
     gallery: [
       { caption: "Pipeline board", preview: "browser" },
@@ -319,7 +319,7 @@ export const projects: Project[] = [
     preview: "browser",
     technologies: ["Next.js", "TypeScript", "GraphQL", "Stripe", "Cloudflare"],
     challenge:
-      "The existing platform made every catalogue change slow and every custom feature a fight. Page speed was poor, and merchandising couldn't run the campaigns they wanted.",
+      "The existing platform made every catalogue change slow and every custom feature difficult to deliver. Page speed was poor, and the merchandising team could not run the campaigns they needed.",
     solution:
       "We moved to a headless architecture: a Next.js storefront rendered at the edge, a commerce API for catalogue and cart, and a purpose-built merchandising console the team controls directly.",
     features: [

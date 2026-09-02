@@ -12,8 +12,8 @@ export default function NotFound() {
         This page doesn&apos;t exist.
       </h1>
       <p className="mt-4 max-w-md text-lg leading-relaxed text-muted">
-        The link may be broken, or the page may have moved. Everything worth
-        finding is one click away.
+        The link may be broken or the page may have moved. Use the links below
+        to continue.
       </p>
       <div className="mt-9 flex flex-wrap gap-3">
         <Link href="/" className="btn-accent">

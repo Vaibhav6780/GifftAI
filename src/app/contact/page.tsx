@@ -4,9 +4,9 @@ import { ContactForm } from "@/components/ContactForm";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Have a product in mind? Let's build it.",
+  title: "Contact",
   description:
-    "Tell GIFFT AI what you're trying to build. We'll help turn the idea into a practical technical plan.",
+    "Tell GIFFT AI about the system you intend to build. We will help translate it into a practical technical plan.",
   alternates: { canonical: "/contact" },
 };
 
@@ -23,8 +23,8 @@ export default function ContactPage() {
     <>
       <PageHeader
         eyebrow="Contact"
-        title="Have a product in mind? Let's build it."
-        subtitle="Tell us what you're trying to build. We'll help turn the idea into a practical technical plan."
+        title="Let's discuss your project."
+        subtitle="Tell us about the system you intend to build. We will help translate it into a practical technical plan."
       />
 
       <section className="shell grid gap-14 py-16 sm:py-20 lg:grid-cols-[1.4fr_0.9fr] lg:gap-20">
@@ -64,9 +64,9 @@ export default function ContactPage() {
 
           <div className="card rounded-2xl p-5">
             <p className="text-sm leading-relaxed text-muted">
-              Not sure where to start? Send a short description of the problem
-              and we&apos;ll come back with questions and a suggested first step
-              — no obligation.
+              If you are still scoping the work, send a short description of the
+              problem. We will respond with questions and a suggested first
+              step, with no obligation to proceed.
             </p>
           </div>
         </aside>

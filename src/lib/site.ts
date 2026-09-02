@@ -7,14 +7,14 @@ export const site = {
     "GIFFT AI designs and engineers web applications, SaaS platforms, AI systems and business software built for real-world scale.",
   // ---- Editable contact information -------------------------------------
   contact: {
-    email: "hello@gifftai.com",
-    phone: "+1 (000) 000-0000",
+    email: "gifftaimktg@gmail.com",
+    phone: "+91 95606 10184",
     location: "Remote — worldwide",
-    linkedin: "https://www.linkedin.com/company/gifftai",
-    whatsapp: "https://wa.me/10000000000",
+    linkedin: "https://www.linkedin.com/company/gifftai/",
+    whatsapp: "https://wa.me/919560610184",
   },
   social: [
-    { label: "LinkedIn", href: "https://www.linkedin.com/company/gifftai" },
+    { label: "LinkedIn", href: "https://www.linkedin.com/company/gifftai/" },
     { label: "GitHub", href: "https://github.com/gifftai" },
     { label: "X", href: "https://x.com/gifftai" },
   ],

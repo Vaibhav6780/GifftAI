@@ -14,8 +14,8 @@ export default function TechnologiesPage() {
     <>
       <PageHeader
         eyebrow="Technologies"
-        title="An engineering map, not a wall of logos."
-        subtitle="We choose tools for how well they hold up in production — not for how they look on a slide. Here's the ground we build on."
+        title="The engineering foundation we build on."
+        subtitle="We select technologies based on how well they perform in production and how maintainable they remain over time. The following is the stack we work with across projects."
       />
       <TechnologyGrid />
     </>

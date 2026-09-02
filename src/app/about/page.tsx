@@ -21,8 +21,8 @@ export default function AboutPage() {
     <>
       <PageHeader
         eyebrow="About"
-        title="We solve hard software problems."
-        subtitle="A small, senior studio that builds business-critical software — and stays close to it after launch."
+        title="We solve difficult software problems."
+        subtitle="A small, senior studio that builds business-critical software and remains involved with it after launch."
       />
 
       {/* Company story */}
@@ -100,7 +100,7 @@ export default function AboutPage() {
         <SectionHeading
           eyebrow="Team"
           title="The people who build it."
-          intro="Replace these placeholders with your real team. The people who scope the work are the people who build it."
+          intro="The people who scope the work are the people who deliver it. (Replace the entries below with your actual team.)"
         />
         <div className="mt-14 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
           {team.map((member, i) => (

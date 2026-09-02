@@ -4,17 +4,17 @@ const flow = [
   {
     k: "01",
     t: "Start from the problem",
-    d: "We map how the work actually happens before a line of code is written.",
+    d: "We map how the work is carried out before any code is written.",
   },
   {
     k: "02",
     t: "Model the system",
-    d: "A single coherent data model and the smallest set of moving parts that fits it.",
+    d: "A single coherent data model and the smallest set of components that supports it.",
   },
   {
     k: "03",
-    t: "Make it hold up",
-    d: "Fast, observable, tested and ready to grow into for years, not months.",
+    t: "Build it to last",
+    d: "Fast, observable and tested, and designed to be extended over the years ahead.",
   },
 ];
 
@@ -28,24 +28,24 @@ export function BrandStatement() {
         <div className="flex flex-col gap-5 text-base leading-relaxed text-muted lg:pt-2">
           <Reveal delay={1}>
             <p>
-              Most business software accumulates rather than resolves. A tool
-              here, an integration there, a spreadsheet to hold it together —
-              until the system nobody designed becomes the system everybody
-              depends on.
+              Most business software accumulates rather than resolves.
+              Individual tools, point integrations and supporting spreadsheets
+              combine over time into a system that no one designed but that the
+              organisation now depends on.
             </p>
           </Reveal>
           <Reveal delay={2}>
             <p>
-              We work the other way around. We start from the problem, model
-              how the work actually happens, and build the smallest coherent
-              system that makes it better. Then we make it fast, observable and
-              ready to grow into.
+              We take the opposite approach. We begin with the problem, model
+              how the work is actually carried out, and build the smallest
+              coherent system that improves it. We then make that system fast,
+              observable and ready to extend.
             </p>
           </Reveal>
           <Reveal delay={3}>
             <p className="font-serif text-lg italic text-ink">
-              The result should feel obvious in hindsight — and quietly hold up
-              for years.
+              The result should appear obvious in hindsight and remain
+              dependable for years.
             </p>
           </Reveal>
         </div>

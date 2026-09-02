@@ -56,6 +56,12 @@ export function Footer() {
             >
               {site.contact.email}
             </a>
+            <a
+              href={`tel:${site.contact.phone.replace(/[^+\d]/g, "")}`}
+              className="w-fit text-sm text-muted transition-colors hover:text-ink"
+            >
+              {site.contact.phone}
+            </a>
           </div>
         </div>
 

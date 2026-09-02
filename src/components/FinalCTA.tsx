@@ -2,8 +2,8 @@ import { MagneticButton, ArrowRight } from "./MagneticButton";
 import { Reveal, RevealText } from "./Reveal";
 
 export function FinalCTA({
-  heading = "Let's build something useful.",
-  sub = "Tell us what you're trying to build. We'll help turn the idea into a practical technical plan.",
+  heading = "Let's discuss what you're building.",
+  sub = "Share what you intend to build and we will help translate it into a practical technical plan.",
 }: {
   heading?: string;
   sub?: string;

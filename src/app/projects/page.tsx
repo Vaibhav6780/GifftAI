@@ -5,7 +5,7 @@ import { ProjectExplorer } from "@/components/ProjectExplorer";
 export const metadata: Metadata = {
   title: "Our work",
   description:
-    "Real software. Real systems. Built for real business problems — SaaS platforms, AI systems, CRMs, dashboards and automation engineered by GIFFT AI.",
+    "Production software built for real business problems — SaaS platforms, AI systems, CRMs, dashboards and automation engineered by GIFFT AI.",
   alternates: { canonical: "/projects" },
 };
 
@@ -15,7 +15,7 @@ export default function ProjectsPage() {
       <PageHeader
         eyebrow="Work"
         title="Our work"
-        subtitle="Real software. Real systems. Built for real business problems."
+        subtitle="A selection of production systems delivered for real business problems across SaaS, AI, operations and commerce."
       />
       <ProjectExplorer />
     </>

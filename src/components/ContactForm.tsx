@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight } from "./MagneticButton";
+import { site } from "@/lib/site";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import {
@@ -78,7 +79,7 @@ export function ContactForm() {
     } catch {
       setStatus("error");
       setError(
-        "Something went wrong sending your message. Email us directly at hello@gifftai.com.",
+        `Something went wrong sending your message. Email us directly at ${site.contact.email}.`,
       );
     }
   }
@@ -108,8 +109,9 @@ export function ContactForm() {
             </span>
             <h3 className="mt-4 text-xl text-ink">Message received.</h3>
             <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted">
-              Thanks for reaching out. We&apos;ll read what you sent and get back
-              to you with next steps — usually within two business days.
+              Thank you for your enquiry. We will review the details you have
+              provided and respond with next steps, typically within two
+              business days.
             </p>
             <button
               type="button"
@@ -197,13 +199,11 @@ export function ContactForm() {
                 disabled={status === "submitting"}
                 className="btn-accent disabled:opacity-60"
               >
-                {status === "submitting"
-                  ? "Sending…"
-                  : "Start the Conversation"}
+                {status === "submitting" ? "Sending…" : "Send enquiry"}
                 <ArrowRight />
               </button>
               <p className="text-xs text-faint">
-                We reply within two business days.
+                We respond within two business days.
               </p>
             </div>
           </motion.form>

@@ -15,7 +15,7 @@ export function HomeServices() {
         <SectionHeading
           eyebrow="Capabilities"
           title="What we build"
-          intro="From the first architecture diagram to production deployment, we build software around the way your business actually works."
+          intro="From the first architecture diagram to production deployment, we build software around the way your business operates."
         />
 
         <div className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-line/20 bg-line/10 shadow-elev-2 sm:grid-cols-2 lg:grid-cols-3">
