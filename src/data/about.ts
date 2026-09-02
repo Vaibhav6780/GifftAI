@@ -16,7 +16,7 @@ export const timeline: TimelineEntry[] = [
   {
     year: "2001",
     title: "Founded",
-    body: "GIFFT AI is established as a software engineering studio. // Confirm the exact year and add the reason it started.",
+    body: "GIFFT AI is established as a software engineering studio.",
   },
   {
     year: "20XX",
