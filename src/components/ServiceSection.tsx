@@ -49,10 +49,7 @@ export function ServiceSection({
           <Reveal delay={3}>
             <ul className="mt-6 flex flex-wrap gap-2">
               {service.deliverables.map((d) => (
-                <li
-                  key={d}
-                  className="rounded-full border border-line/15 px-3 py-1 text-xs text-muted"
-                >
+                <li key={d} className="chip text-xs text-muted">
                   {d}
                 </li>
               ))}
@@ -61,7 +58,7 @@ export function ServiceSection({
         </div>
 
         <Reveal className={flip ? "lg:order-1" : ""}>
-          <div className="overflow-hidden rounded-xl border border-line/10 bg-surface-2 p-4 sm:p-10">
+          <div className="card card-hover overflow-hidden rounded-2xl p-4 sm:p-10">
             <SystemPreview
               variant={previews[index % previews.length]}
               label={`${service.title} illustration`}

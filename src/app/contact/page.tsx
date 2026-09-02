@@ -62,7 +62,7 @@ export default function ContactPage() {
             </dl>
           </div>
 
-          <div className="rounded-xl border border-line/10 bg-surface-2 p-5">
+          <div className="card rounded-2xl p-5">
             <p className="text-sm leading-relaxed text-muted">
               Not sure where to start? Send a short description of the problem
               and we&apos;ll come back with questions and a suggested first step

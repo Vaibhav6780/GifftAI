@@ -54,8 +54,12 @@ export function ProcessSection() {
           })}
         </ul>
 
-        <div className="relative min-h-[220px] rounded-xl border border-line/10 bg-surface-2 p-8">
-          <div className="absolute inset-0 grid-field opacity-50" />
+        <div className="panel relative min-h-[240px] overflow-hidden rounded-2xl p-8 shadow-elev-2">
+          <div className="absolute inset-0 grid-field-strong opacity-[0.5]" />
+          <div
+            className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full opacity-80 blur-2xl"
+            style={{ background: "var(--glow-warm)" }}
+          />
           <AnimatePresence mode="wait">
             <motion.div
               key={active}
@@ -65,10 +69,10 @@ export function ProcessSection() {
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
               className="relative"
             >
-              <span className="font-mono text-xs uppercase tracking-[0.2em] text-accent">
+              <span className="chip font-mono text-[0.7rem] uppercase tracking-[0.18em] text-accent">
                 Step {processSteps[active].index}
               </span>
-              <h3 className="mt-3 text-2xl text-ink">
+              <h3 className="mt-4 text-2xl text-ink">
                 {processSteps[active].title}
               </h3>
               <p className="mt-4 max-w-md text-base leading-relaxed text-muted">

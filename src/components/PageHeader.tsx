@@ -14,11 +14,19 @@ export function PageHeader({
 }) {
   return (
     <header className="relative overflow-hidden border-b border-line/10 pt-32 sm:pt-40">
-      <div className="absolute inset-0 grid-field opacity-30" />
+      <div className="pointer-events-none absolute inset-0 grid-field opacity-[0.45]" />
+      <div
+        className="pointer-events-none absolute -right-32 -top-20 h-[440px] w-[440px] rounded-full opacity-70 blur-3xl"
+        style={{ background: "var(--glow-warm)" }}
+      />
+      <div
+        className="pointer-events-none absolute -left-40 top-24 h-[360px] w-[360px] rounded-full opacity-60 blur-3xl"
+        style={{ background: "var(--glow-cool)" }}
+      />
       <div className="shell relative pb-16 sm:pb-20">
         <Reveal>
-          <span className="eyebrow flex items-center gap-2">
-            <span className="h-px w-6 bg-accent" />
+          <span className="chip font-mono text-[0.7rem] uppercase tracking-[0.18em] text-muted">
+            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
             {eyebrow}
           </span>
         </Reveal>

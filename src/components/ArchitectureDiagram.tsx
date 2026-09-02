@@ -7,14 +7,14 @@ export function ArchitectureDiagram({
   layers: ArchitectureLayer[];
 }) {
   return (
-    <div className="relative rounded-xl border border-line/10 bg-surface-2 p-6 sm:p-10">
-      <div className="absolute inset-0 grid-field opacity-40" />
+    <div className="panel relative overflow-hidden rounded-2xl p-6 shadow-elev-2 sm:p-10">
+      <div className="absolute inset-0 grid-field-strong opacity-[0.45]" />
       <ol className="relative flex flex-col">
         {layers.map((layer, i) => (
           <Reveal as="li" key={layer.label} delay={i}>
-            <div className="flex flex-col gap-2 rounded-lg border border-line/10 bg-bg/60 p-4 backdrop-blur sm:flex-row sm:items-center sm:gap-6 sm:p-5">
+            <div className="flex flex-col gap-2 rounded-xl border border-line/15 bg-surface/80 p-4 shadow-elev-1 backdrop-blur transition-colors hover:border-accent/30 sm:flex-row sm:items-center sm:gap-6 sm:p-5">
               <div className="flex items-center gap-3 sm:w-52 sm:shrink-0">
-                <span className="font-mono text-[0.7rem] text-accent">
+                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-accent/12 font-mono text-[0.7rem] text-accent">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span className="font-display text-lg text-ink">

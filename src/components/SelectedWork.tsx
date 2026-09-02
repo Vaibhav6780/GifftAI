@@ -45,7 +45,7 @@ export function SelectedWork() {
             </span>
           </div>
 
-          <div className="mt-6 overflow-hidden rounded-2xl border border-line/10 bg-surface-2 p-4 sm:p-12">
+          <div className="card card-hover mt-6 overflow-hidden rounded-[1.75rem] p-4 sm:p-12">
             <motion.div
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
@@ -70,7 +70,7 @@ export function SelectedWork() {
                 {feature.technologies.map((t) => (
                   <span
                     key={t}
-                    className="rounded-full border border-line/15 px-2.5 py-1 text-[0.7rem] text-muted"
+                    className="chip text-[0.7rem] text-muted"
                   >
                     {t}
                   </span>
@@ -106,7 +106,7 @@ export function SelectedWork() {
                   {project.category}
                 </span>
               </div>
-              <div className="mt-5 overflow-hidden rounded-xl border border-line/10 bg-surface-2 p-4 sm:p-7">
+              <div className="card card-hover mt-5 overflow-hidden rounded-2xl p-4 sm:p-7">
                 <motion.div
                   whileHover={{ scale: 1.03 }}
                   transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}

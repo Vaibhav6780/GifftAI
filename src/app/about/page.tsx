@@ -54,10 +54,14 @@ export default function AboutPage() {
       <section className="border-y border-line/10 bg-surface-2/40">
         <div className="shell py-20 sm:py-28">
           <SectionHeading eyebrow="What we believe" title="Five principles we build by." />
-          <div className="mt-14 grid gap-px overflow-hidden rounded-xl border border-line/10 bg-line/10 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-line/20 bg-line/10 shadow-elev-2 sm:grid-cols-2 lg:grid-cols-3">
             {values.map((v, i) => (
-              <Reveal key={v.title} delay={i % 3} className="bg-bg p-6 sm:p-8">
-                <span className="font-mono text-xs text-accent">
+              <Reveal
+                key={v.title}
+                delay={i % 3}
+                className="group bg-surface p-6 transition-colors hover:bg-surface-3 sm:p-8"
+              >
+                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-accent/12 font-mono text-xs text-accent">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <h3 className="mt-3 text-lg text-ink">{v.title}</h3>
@@ -101,11 +105,16 @@ export default function AboutPage() {
         <div className="mt-14 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
           {team.map((member, i) => (
             <Reveal key={i} delay={i % 4}>
-              <div className="aspect-square rounded-xl border border-line/10 bg-surface-2">
-                <div className="grid h-full place-items-center">
+              <div className="card card-hover relative aspect-square overflow-hidden rounded-2xl">
+                <div className="absolute inset-0 grid-field-strong opacity-40" />
+                <div
+                  className="pointer-events-none absolute -bottom-8 -right-8 h-24 w-24 rounded-full opacity-80 blur-2xl"
+                  style={{ background: "var(--glow-warm)" }}
+                />
+                <div className="relative grid h-full place-items-center">
                   <svg
                     viewBox="0 0 48 48"
-                    className="h-12 w-12 text-line/25"
+                    className="h-12 w-12 text-line/30"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="1.5"

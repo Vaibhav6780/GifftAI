@@ -4,31 +4,44 @@ import { motion } from "framer-motion";
 import { HeroComposition } from "./HeroComposition";
 import { MagneticButton, ArrowRight } from "./MagneticButton";
 
+const proof = [
+  { v: "6+", k: "systems shipped" },
+  { v: "99.9%", k: "uptime target" },
+  { v: "2 wk", k: "to first release" },
+];
+
 export function Hero() {
   return (
     <section className="relative overflow-hidden pt-32 sm:pt-40">
-      <div className="absolute inset-x-0 top-0 h-[60vh] grid-field opacity-40" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[70vh] grid-field opacity-[0.5]" />
       <div
-        className="pointer-events-none absolute -right-40 -top-20 h-[520px] w-[520px] rounded-full opacity-[0.10] blur-3xl"
-        style={{ background: "rgb(var(--accent))" }}
+        className="pointer-events-none absolute -right-40 -top-24 h-[560px] w-[560px] rounded-full opacity-70 blur-3xl"
+        style={{ background: "var(--glow-warm)" }}
+      />
+      <div
+        className="pointer-events-none absolute -left-48 top-40 h-[440px] w-[440px] rounded-full opacity-60 blur-3xl"
+        style={{ background: "var(--glow-cool)" }}
       />
 
-      <div className="shell relative grid items-center gap-12 pb-20 lg:grid-cols-[1.05fr_0.95fr] lg:gap-8 lg:pb-28">
+      <div className="shell relative grid items-center gap-12 pb-20 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10 lg:pb-28">
         <div>
           <motion.span
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="eyebrow flex items-center gap-2"
+            className="chip font-mono text-[0.7rem] uppercase tracking-[0.18em] text-muted"
           >
-            <span className="h-px w-6 bg-accent" />
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent/60" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+            </span>
             Software engineering · AI · Products
           </motion.span>
 
           <h1 className="mt-6 text-display-lg text-ink">
             {["We build software", "that moves", "businesses forward."].map(
               (line, i) => (
-                <span key={i} className="block overflow-hidden">
+                <span key={i} className="block overflow-hidden pb-[0.08em]">
                   <motion.span
                     className="block"
                     initial={{ y: "110%" }}
@@ -41,8 +54,7 @@ export function Hero() {
                   >
                     {i === 2 ? (
                       <>
-                        that moves{" "}
-                        <span className="text-accent">businesses</span> forward.
+                        <span className="text-gradient">businesses</span> forward.
                       </>
                     ) : (
                       line
@@ -78,6 +90,22 @@ export function Hero() {
               <ArrowRight />
             </MagneticButton>
           </motion.div>
+
+          <motion.dl
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.74 }}
+            className="mt-12 flex flex-wrap gap-x-10 gap-y-5 border-t border-line/15 pt-6"
+          >
+            {proof.map((p) => (
+              <div key={p.k}>
+                <dt className="font-display text-2xl text-ink">{p.v}</dt>
+                <dd className="mt-0.5 font-mono text-[0.7rem] uppercase tracking-[0.14em] text-faint">
+                  {p.k}
+                </dd>
+              </div>
+            ))}
+          </motion.dl>
         </div>
 
         <motion.div

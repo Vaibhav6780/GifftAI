@@ -7,8 +7,8 @@ export function Logo({ className = "" }: { className?: string }) {
       className={`group inline-flex items-center gap-2.5 ${className}`}
       aria-label="GIFFT AI — home"
     >
-      <span className="relative inline-flex h-7 w-7 items-center justify-center">
-        <svg viewBox="0 0 28 28" className="h-7 w-7" fill="none" aria-hidden="true">
+      <span className="relative inline-flex h-8 w-8 items-center justify-center rounded-[9px] border border-line/15 bg-surface shadow-elev-1 transition-transform duration-300 group-hover:-translate-y-0.5">
+        <svg viewBox="0 0 28 28" className="h-6 w-6" fill="none" aria-hidden="true">
           <rect
             x="1"
             y="1"
@@ -16,7 +16,7 @@ export function Logo({ className = "" }: { className?: string }) {
             height="26"
             rx="7"
             stroke="currentColor"
-            className="text-line/25"
+            className="text-line/15"
           />
           {/* connected-nodes motif */}
           <path

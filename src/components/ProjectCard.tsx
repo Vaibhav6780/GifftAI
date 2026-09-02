@@ -24,7 +24,7 @@ export function ProjectCard({
       className="group"
     >
       <Link href={`/projects/${project.slug}`} className="block">
-        <div className="relative overflow-hidden rounded-xl border border-line/10 bg-surface-2">
+        <div className="card card-hover relative overflow-hidden rounded-2xl">
           <motion.div
             whileHover={{ scale: 1.03 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
@@ -36,8 +36,8 @@ export function ProjectCard({
               className={isFeature ? "aspect-[16/10]" : "aspect-[4/3]"}
             />
           </motion.div>
-          <div className="pointer-events-none absolute right-5 top-5 flex h-9 w-9 items-center justify-center rounded-full border border-line/20 bg-bg/70 opacity-0 backdrop-blur transition-all duration-500 ease-out-expo group-hover:opacity-100">
-            <ArrowRight className="h-4 w-4 text-ink" />
+          <div className="pointer-events-none absolute right-5 top-5 flex h-9 w-9 -translate-y-1 items-center justify-center rounded-full border border-line/20 bg-accent text-white opacity-0 shadow-elev-2 backdrop-blur transition-all duration-500 ease-out-expo group-hover:translate-y-0 group-hover:opacity-100">
+            <ArrowRight className="h-4 w-4" />
           </div>
         </div>
 
@@ -62,7 +62,7 @@ export function ProjectCard({
           {project.technologies.slice(0, 4).map((t) => (
             <span
               key={t}
-              className="rounded-full border border-line/15 px-2.5 py-1 text-[0.7rem] text-muted"
+              className="chip text-[0.7rem] text-muted"
             >
               {t}
             </span>

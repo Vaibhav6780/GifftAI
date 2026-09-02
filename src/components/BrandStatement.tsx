@@ -1,5 +1,23 @@
 import { Reveal, RevealText } from "./Reveal";
 
+const flow = [
+  {
+    k: "01",
+    t: "Start from the problem",
+    d: "We map how the work actually happens before a line of code is written.",
+  },
+  {
+    k: "02",
+    t: "Model the system",
+    d: "A single coherent data model and the smallest set of moving parts that fits it.",
+  },
+  {
+    k: "03",
+    t: "Make it hold up",
+    d: "Fast, observable, tested and ready to grow into for years, not months.",
+  },
+];
+
 export function BrandStatement() {
   return (
     <section className="shell py-24 sm:py-32">
@@ -31,6 +49,26 @@ export function BrandStatement() {
             </p>
           </Reveal>
         </div>
+      </div>
+
+      <div className="mt-16 grid gap-px overflow-hidden rounded-2xl border border-line/20 bg-line/10 shadow-elev-2 sm:mt-20 sm:grid-cols-3">
+        {flow.map((f, i) => (
+          <Reveal
+            key={f.k}
+            delay={i}
+            className="group relative bg-surface p-6 transition-colors duration-300 hover:bg-surface-3 sm:p-8"
+          >
+            <div className="flex items-center gap-3">
+              <span className="font-mono text-xs text-accent">{f.k}</span>
+              <span className="h-px flex-1 bg-line/20" />
+              {i < flow.length - 1 ? (
+                <span className="hidden font-mono text-faint sm:inline">→</span>
+              ) : null}
+            </div>
+            <h3 className="mt-4 font-display text-lg text-ink">{f.t}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted">{f.d}</p>
+          </Reveal>
+        ))}
       </div>
     </section>
   );

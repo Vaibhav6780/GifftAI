@@ -3,6 +3,15 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight } from "./MagneticButton";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 const projectTypes = [
   "Web Application",
@@ -34,8 +43,8 @@ const timelines = [
 
 type Status = "idle" | "submitting" | "success" | "error";
 
-const fieldBase =
-  "w-full rounded-lg border border-line/20 bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition-colors placeholder:text-faint focus:border-accent";
+const control =
+  "h-11 rounded-lg border-line/20 bg-bg/50 shadow-elev-1 focus-visible:ring-4 focus-visible:ring-accent/12 focus-visible:border-accent data-[placeholder]:text-faint";
 
 export function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
@@ -82,9 +91,9 @@ export function ContactForm() {
             key="success"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="rounded-xl border border-line/10 bg-surface-2 p-8"
+            className="card rounded-2xl p-8"
           >
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-accent/15 text-accent">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-accent/15 text-accent shadow-elev-1">
               <svg
                 viewBox="0 0 24 24"
                 className="h-5 w-5"
@@ -116,7 +125,7 @@ export function ContactForm() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             onSubmit={onSubmit}
-            className="grid gap-5"
+            className="card grid gap-5 rounded-2xl p-6 sm:p-8"
             noValidate
           >
             <input
@@ -130,86 +139,49 @@ export function ContactForm() {
 
             <div className="grid gap-5 sm:grid-cols-2">
               <Field label="Name" htmlFor="name">
-                <input id="name" name="name" required className={fieldBase} />
+                <Input id="name" name="name" required className={control} />
               </Field>
               <Field label="Work email" htmlFor="email">
-                <input
+                <Input
                   id="email"
                   name="email"
                   type="email"
                   required
-                  className={fieldBase}
+                  className={control}
                 />
               </Field>
               <Field label="Company" htmlFor="company">
-                <input id="company" name="company" className={fieldBase} />
+                <Input id="company" name="company" className={control} />
               </Field>
               <Field label="Phone" htmlFor="phone">
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  className={fieldBase}
-                />
+                <Input id="phone" name="phone" type="tel" className={control} />
               </Field>
             </div>
 
             <div className="grid gap-5 sm:grid-cols-3">
               <Field label="Project type" htmlFor="projectType">
-                <select
+                <PickList
                   id="projectType"
                   name="projectType"
-                  className={fieldBase}
-                  defaultValue=""
-                >
-                  <option value="" disabled>
-                    Select…
-                  </option>
-                  {projectTypes.map((t) => (
-                    <option key={t}>{t}</option>
-                  ))}
-                </select>
+                  options={projectTypes}
+                />
               </Field>
               <Field label="Budget" htmlFor="budget">
-                <select
-                  id="budget"
-                  name="budget"
-                  className={fieldBase}
-                  defaultValue=""
-                >
-                  <option value="" disabled>
-                    Select…
-                  </option>
-                  {budgets.map((b) => (
-                    <option key={b}>{b}</option>
-                  ))}
-                </select>
+                <PickList id="budget" name="budget" options={budgets} />
               </Field>
               <Field label="Timeline" htmlFor="timeline">
-                <select
-                  id="timeline"
-                  name="timeline"
-                  className={fieldBase}
-                  defaultValue=""
-                >
-                  <option value="" disabled>
-                    Select…
-                  </option>
-                  {timelines.map((t) => (
-                    <option key={t}>{t}</option>
-                  ))}
-                </select>
+                <PickList id="timeline" name="timeline" options={timelines} />
               </Field>
             </div>
 
             <Field label="Project details" htmlFor="details">
-              <textarea
+              <Textarea
                 id="details"
                 name="details"
                 required
                 rows={5}
                 placeholder="What are you trying to build, and what's the problem behind it?"
-                className={`${fieldBase} resize-y`}
+                className={`${control} h-auto resize-y`}
               />
             </Field>
 
@@ -238,6 +210,31 @@ export function ContactForm() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+function PickList({
+  id,
+  name,
+  options,
+}: {
+  id: string;
+  name: string;
+  options: string[];
+}) {
+  return (
+    <Select name={name}>
+      <SelectTrigger id={id} className={control}>
+        <SelectValue placeholder="Select…" />
+      </SelectTrigger>
+      <SelectContent className="border-line/20 bg-surface shadow-elev-3">
+        {options.map((o) => (
+          <SelectItem key={o} value={o}>
+            {o}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
 

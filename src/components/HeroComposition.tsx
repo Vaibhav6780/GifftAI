@@ -65,6 +65,17 @@ export function HeroComposition() {
       onMouseLeave={reset}
       className="relative aspect-[4/3] w-full select-none [perspective:1400px]"
     >
+      {/* glow + backdrop so the composition reads as a designed object */}
+      <div
+        className="pointer-events-none absolute -inset-8 rounded-[2rem] opacity-80 blur-2xl"
+        style={{
+          background:
+            "radial-gradient(60% 60% at 65% 35%, var(--glow-warm), transparent 70%), radial-gradient(50% 50% at 20% 80%, var(--glow-cool), transparent 70%)",
+        }}
+      />
+      <div className="absolute inset-0 rounded-2xl border border-line/15 bg-surface-3/60 shadow-elev-3 backdrop-blur-sm" />
+      <div className="absolute inset-0 overflow-hidden rounded-2xl grid-field-strong opacity-[0.5]" />
+
       <motion.div
         style={{ rotateX: reduced ? 0 : rx, rotateY: reduced ? 0 : ry }}
         className="relative h-full w-full [transform-style:preserve-3d]"
@@ -91,31 +102,23 @@ export function HeroComposition() {
           </g>
           {!reduced && (
             <>
-              <motion.circle
+              <circle
                 r="3"
                 fill="rgb(var(--accent))"
-                initial={{ offsetDistance: "0%" }}
-                animate={{ offsetDistance: "100%" }}
-                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                className="animate-flow-dot"
                 style={{
                   offsetPath:
                     'path("M70 90 C 140 90, 150 200, 220 200 C 290 200, 300 110, 340 110")',
                 }}
               />
-              <motion.circle
-                r="2"
-                fill="currentColor"
-                className="text-ink"
-                initial={{ offsetDistance: "0%" }}
-                animate={{ offsetDistance: "100%" }}
-                transition={{
-                  duration: 5.5,
-                  repeat: Infinity,
-                  ease: "linear",
-                  delay: 1,
-                }}
+              <circle
+                r="2.5"
+                fill="rgb(var(--accent-2))"
+                className="animate-flow-dot"
                 style={{
                   offsetPath: 'path("M70 90 C 120 40, 260 40, 340 110")',
+                  animationDuration: "5.5s",
+                  animationDelay: "1s",
                 }}
               />
             </>
@@ -143,7 +146,7 @@ export function HeroComposition() {
         {/* Back panel — analytics */}
         <motion.div
           style={{ ...l1, translateZ: 0 }}
-          className="absolute right-[4%] top-[6%] w-[52%] rounded-lg border bg-surface p-3 shadow-[0_20px_60px_-30px_rgb(var(--shadow-color)/0.35)]"
+          className="card absolute right-[4%] top-[6%] w-[52%] rounded-lg p-3 shadow-elev-3"
         >
           <div className="mb-2 flex items-center justify-between">
             <span className="font-mono text-[9px] uppercase tracking-wider text-faint">
@@ -155,7 +158,9 @@ export function HeroComposition() {
             {[40, 58, 34, 70, 52, 82, 60, 92, 74].map((h, i) => (
               <span
                 key={i}
-                className={`w-full rounded-sm ${i === 7 ? "bg-accent/80" : "bg-line/15"}`}
+                className={`w-full rounded-sm ${
+                  i === 7 ? "bg-accent" : i === 5 ? "bg-accent-2/50" : "bg-line/15"
+                }`}
                 style={{ height: `${h}%` }}
               />
             ))}
@@ -165,7 +170,7 @@ export function HeroComposition() {
         {/* Mid panel — console */}
         <motion.div
           style={l2}
-          className="absolute left-[2%] top-[26%] w-[46%] rounded-lg border bg-surface p-3 shadow-[0_24px_70px_-32px_rgb(var(--shadow-color)/0.4)]"
+          className="card absolute left-[2%] top-[26%] w-[46%] rounded-lg p-3 shadow-elev-3"
         >
           <div className="mb-2 flex gap-1">
             <span className="h-1.5 w-1.5 rounded-full border border-line/40" />
@@ -184,7 +189,9 @@ export function HeroComposition() {
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span
-                  className={`block h-1.5 rounded-full ${r.a ? "bg-accent/80" : "bg-line/15"}`}
+                  className={`block h-1.5 rounded-full ${
+                    r.a ? "bg-accent" : i === 2 ? "bg-accent-2/50" : "bg-line/15"
+                  }`}
                   style={{ width: r.w }}
                 />
               </div>
@@ -195,21 +202,27 @@ export function HeroComposition() {
         {/* Front card — metric */}
         <motion.div
           style={l3}
-          className="absolute bottom-[8%] right-[10%] w-[40%] rounded-lg border bg-surface p-4 shadow-[0_30px_80px_-30px_rgb(var(--shadow-color)/0.45)]"
+          className="card absolute bottom-[8%] right-[10%] w-[40%] rounded-lg p-4 shadow-elev-4"
         >
           <span className="font-mono text-[9px] uppercase tracking-wider text-faint">
             uptime
           </span>
           <p className="mt-1 font-display text-2xl text-ink">99.98%</p>
           <div className="mt-3 h-1 w-full rounded-full bg-line/15">
-            <span className="block h-full w-[92%] rounded-full bg-accent" />
+            <span
+              className="block h-full w-[92%] rounded-full"
+              style={{
+                backgroundImage:
+                  "linear-gradient(90deg, rgb(var(--accent-2)), rgb(var(--accent)))",
+              }}
+            />
           </div>
         </motion.div>
 
         {/* floating annotation */}
         <motion.div
           style={l3}
-          className="absolute left-[8%] top-[8%] flex items-center gap-1.5 rounded-full border bg-bg/80 px-2.5 py-1 backdrop-blur"
+          className="glass absolute left-[8%] top-[8%] flex items-center gap-1.5 rounded-full border border-line/20 px-2.5 py-1 shadow-elev-2"
         >
           <span className="h-1.5 w-1.5 rounded-full bg-accent" />
           <span className="font-mono text-[9px] uppercase tracking-wider text-muted">

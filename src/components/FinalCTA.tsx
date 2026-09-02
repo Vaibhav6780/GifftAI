@@ -9,11 +9,15 @@ export function FinalCTA({
   sub?: string;
 }) {
   return (
-    <section className="relative overflow-hidden border-y border-line/10">
-      <div className="absolute inset-0 grid-field opacity-50" />
+    <section className="relative overflow-hidden border-y border-line/10 bg-bg-2">
+      <div className="absolute inset-0 grid-field opacity-[0.55]" />
       <div
-        className="pointer-events-none absolute -left-1/4 top-1/2 h-[420px] w-[420px] -translate-y-1/2 rounded-full opacity-[0.12] blur-3xl"
-        style={{ background: "rgb(var(--accent))" }}
+        className="pointer-events-none absolute -left-1/4 top-1/2 h-[460px] w-[460px] -translate-y-1/2 rounded-full opacity-90 blur-3xl"
+        style={{ background: "var(--glow-warm)" }}
+      />
+      <div
+        className="pointer-events-none absolute -right-1/4 top-0 h-[380px] w-[380px] rounded-full opacity-80 blur-3xl"
+        style={{ background: "var(--glow-cool)" }}
       />
       <div className="shell relative py-24 sm:py-32">
         <div className="flex flex-col items-start gap-8">

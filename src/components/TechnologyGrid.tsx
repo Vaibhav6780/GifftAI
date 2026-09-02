@@ -54,9 +54,13 @@ export function TechnologyGrid() {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-          className="relative self-start rounded-xl border border-line/10 bg-surface-2 p-8 sm:p-10"
+          className="panel relative self-start overflow-hidden rounded-2xl p-8 shadow-elev-2 sm:p-10"
         >
-          <div className="absolute inset-0 grid-field opacity-40" />
+          <div className="absolute inset-0 grid-field-strong opacity-[0.5]" />
+          <div
+            className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full opacity-80 blur-2xl"
+            style={{ background: "var(--glow-cool)" }}
+          />
           <div className="relative">
             <h3 className="font-mono text-xs uppercase tracking-[0.2em] text-accent">
               {current.name}
@@ -68,7 +72,7 @@ export function TechnologyGrid() {
               {current.items.map((item) => (
                 <span
                   key={item}
-                  className="rounded-full border border-line/15 bg-bg/60 px-3.5 py-1.5 text-sm text-ink backdrop-blur"
+                  className="chip bg-surface/80 px-3.5 py-1.5 text-sm text-ink"
                 >
                   {item}
                 </span>

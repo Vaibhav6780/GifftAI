@@ -73,7 +73,7 @@ export function CaseStudy({
         </div>
         <div className="shell relative pb-16">
           <Reveal>
-            <div className="overflow-hidden rounded-2xl border border-line/10 bg-surface-2 p-4 sm:p-14">
+            <div className="card overflow-hidden rounded-[1.75rem] p-4 shadow-elev-3 sm:p-14">
               <SystemPreview
                 variant={project.preview}
                 label={`${project.title} product visual`}
@@ -102,7 +102,7 @@ export function CaseStudy({
           <div className="mt-10 grid gap-4 sm:grid-cols-2">
             {project.gallery.slice(0, 2).map((g) => (
               <figure key={g.caption}>
-                <div className="overflow-hidden rounded-lg border border-line/10 bg-surface-2 p-4">
+                <div className="card overflow-hidden rounded-xl p-4">
                   <SystemPreview
                     variant={g.preview}
                     label={g.caption}
@@ -119,10 +119,14 @@ export function CaseStudy({
       </Block>
 
       <Block eyebrow="Key Features">
-        <div className="grid gap-px overflow-hidden rounded-xl border border-line/10 bg-line/10 sm:grid-cols-2">
+        <div className="grid gap-px overflow-hidden rounded-2xl border border-line/20 bg-line/10 shadow-elev-2 sm:grid-cols-2">
           {project.features.map((f, i) => (
-            <Reveal key={f.title} delay={i % 2} className="bg-bg p-6 sm:p-8">
-              <span className="font-mono text-xs text-accent">
+            <Reveal
+              key={f.title}
+              delay={i % 2}
+              className="group bg-surface p-6 transition-colors hover:bg-surface-3 sm:p-8"
+            >
+              <span className="flex h-7 w-7 items-center justify-center rounded-md bg-accent/12 font-mono text-xs text-accent">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <h3 className="mt-3 text-lg text-ink">{f.title}</h3>
@@ -166,7 +170,7 @@ export function CaseStudy({
               as="li"
               key={r}
               delay={i % 2}
-              className="flex items-start gap-3 rounded-lg border border-line/10 bg-surface-2 p-5"
+              className="card flex items-start gap-3 rounded-xl p-5"
             >
               <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
               <span className="text-base text-ink">{r}</span>
@@ -180,7 +184,7 @@ export function CaseStudy({
           {project.gallery.map((g) => (
             <Reveal key={g.caption}>
               <figure>
-                <div className="overflow-hidden rounded-xl border border-line/10 bg-surface-2 p-4 sm:p-10">
+                <div className="card overflow-hidden rounded-2xl p-4 sm:p-10">
                   <SystemPreview
                     variant={g.preview}
                     label={g.caption}
@@ -209,7 +213,7 @@ export function CaseStudy({
               <ArrowRight />
             </span>
           </div>
-          <div className="mt-8 overflow-hidden rounded-2xl border border-line/10 bg-surface-2 p-4 transition-transform duration-700 ease-out-expo group-hover:-translate-y-1 sm:p-12">
+          <div className="card card-hover mt-8 overflow-hidden rounded-[1.75rem] p-4 sm:p-12">
             <SystemPreview
               variant={next.preview}
               label={`${next.title} preview`}

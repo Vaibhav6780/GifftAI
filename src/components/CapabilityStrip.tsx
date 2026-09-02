@@ -49,8 +49,8 @@ export function CapabilityStrip() {
 
 function Item({ label }: { label: string }) {
   return (
-    <span className="flex shrink-0 items-center gap-3 text-sm text-muted">
-      <span className="h-1 w-1 rounded-full bg-accent" />
+    <span className="chip shrink-0 gap-2 whitespace-nowrap px-3.5 py-1.5 text-sm text-muted">
+      <span className="h-1.5 w-1.5 rounded-full bg-accent" />
       {label}
     </span>
   );
