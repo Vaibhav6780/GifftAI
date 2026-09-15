@@ -1,0 +1,10 @@
+{
+  "extends": "@gifftai/config/tsconfig/node.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "outDir": "dist-node",
+    "rootDir": "."
+  },
+  "include": ["vite.config.ts"]
+}

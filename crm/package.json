@@ -1,0 +1,43 @@
+{
+  "name": "gifftai-crm",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Enterprise CRM monorepo",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@11.17.0",
+  "scripts": {
+    "dev": "pnpm --filter @gifftai/shared build && concurrently -n api,worker,web -c blue,magenta,green \"pnpm --filter @gifftai/api dev\" \"pnpm --filter @gifftai/api dev:worker\" \"pnpm --filter @gifftai/web dev\"",
+    "build": "pnpm --filter @gifftai/shared build && pnpm --filter @gifftai/api build && pnpm --filter @gifftai/web build",
+    "lint": "pnpm -r lint",
+    "lint:fix": "pnpm -r lint:fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "infra:up": "docker compose -f docker/docker-compose.yml up -d",
+    "infra:down": "docker compose -f docker/docker-compose.yml down",
+    "infra:logs": "docker compose -f docker/docker-compose.yml logs -f",
+    "db:migrate": "pnpm --filter @gifftai/api prisma:migrate",
+    "db:seed": "pnpm --filter @gifftai/shared build && pnpm --filter @gifftai/api prisma:seed",
+    "db:studio": "pnpm --filter @gifftai/api prisma:studio",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix"
+    ],
+    "*.{ts,tsx,json,md,yml,yaml,css}": [
+      "prettier --write"
+    ]
+  }
+}

@@ -1,0 +1,187 @@
+name: gifftai-crm
+
+services:
+  # postgres/redis/minio: the base dev compose file (docker-compose.yml) publishes
+  # each of these on a host port with no host_ip qualifier — fine for local dev
+  # (127.0.0.1-equivalent on a dev laptop), but Compose CONCATENATES `ports:` lists
+  # across -f files rather than replacing them, so left alone here that would
+  # publish prod Postgres/Redis/MinIO on the server's public 0.0.0.0 interface.
+  # `!reset []` clears the inherited list — api/worker/migrate reach these over the
+  # internal Docker network by service name and never need a host port at all,
+  # matching the "no host port binding" pattern the sibling gifftai_official_web
+  # repo's own postgres/redis already use.
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    env_file: ../apps/api/.env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-gifftai}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-gifftai_crm}
+    ports: !reset []
+    volumes:
+      - gifftai_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-gifftai} -d ${POSTGRES_DB:-gifftai_crm}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "60", "1"]
+    ports: !reset []
+    volumes:
+      - gifftai_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY:?S3_ACCESS_KEY is required}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY:?S3_SECRET_KEY is required}
+    ports: !reset []
+    volumes:
+      - gifftai_minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # minio-init (bucket bootstrap): the base file's version hardcodes the DEV
+  # MinIO root creds (gifftai_minio_admin/gifftai_minio_password) and dev bucket name
+  # (gifftai-crm-dev) — both wrong in prod, where `minio` above is seeded from
+  # S3_ACCESS_KEY/S3_SECRET_KEY and the app looks for S3_BUCKET
+  # (gifftai-crm-prod per apps/api/.env.production). Without this override,
+  # minio-init would fail to authenticate and, even if it didn't, would create
+  # the wrong bucket. `!override` fully replaces the base entrypoint.
+  minio-init:
+    entrypoint: !override >
+      /bin/sh -c "
+        mc alias set local http://minio:9000 ${S3_ACCESS_KEY:?S3_ACCESS_KEY is required} ${S3_SECRET_KEY:?S3_SECRET_KEY is required} &&
+        mc mb -p local/${S3_BUCKET:-gifftai-crm-prod} &&
+        mc anonymous set download local/${S3_BUCKET:-gifftai-crm-prod}
+      "
+    env_file: ../apps/api/.env
+
+  # mailhog: dev-only fake SMTP catcher, pointless (and, unrestricted, a public
+  # unauthenticated mail viewer) in prod — apps/api/.env.production points
+  # SMTP_HOST at a real provider instead. Gated behind a profile nothing
+  # activates by default, the same mechanism already used for the `migrate`
+  # service below, so plain `up -d` never starts it.
+  mailhog:
+    profiles: ["dev-only"]
+
+  api:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+      target: runtime
+    restart: unless-stopped
+    env_file: ../apps/api/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:4004:4000"
+    # RM Requests (apps/api/src/modules/rm-requests) calls gifftai_official_web's admin-api.
+    # That container's port is published as 127.0.0.1:8003:8001 — deliberately loopback-only
+    # so it's never reachable from the public internet — but Docker's loopback-scoped port
+    # publishing is ALSO unreachable from other containers via the bridge gateway/
+    # host.docker.internal (confirmed live: reachable from the host's own 127.0.0.1, not from
+    # the bridge gateway address at all). So this can't be solved with extra_hosts/
+    # host.docker.internal like a normal "container needs the host" case. Instead, attach
+    # this one service to a small external network shared with just the admin-api container
+    # on the other compose project, and reach it by container/service name
+    # (WEBSITE_ADMIN_API_URL=http://admin-api:8001/... in apps/api/.env) — no host port
+    # exposure needed for this at all, and admin-api's existing 127.0.0.1:8003 binding for
+    # direct-debug access is untouched. Create the network once on the server with
+    # `docker network create gifftai-shared` before the first deploy that uses this.
+    networks:
+      default: {}
+      gifftai-shared: {}
+
+  worker:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+      target: worker
+    restart: unless-stopped
+    env_file: ../apps/api/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_API_URL: /api
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:3015:80"
+
+  # One-off migration runner — NOT started automatically.
+  # Run with: docker compose --profile migrate up migrate
+  # Reuses the `api` image (runtime stage ships devDependencies, so the
+  # prisma CLI is present — see apps/api/Dockerfile's note) instead of a
+  # second build definition. WORKDIR is already /repo/apps/api, matching
+  # prisma's default schema lookup at ./prisma/schema.prisma.
+  migrate:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+      target: runtime
+    command: ["npx", "prisma", "migrate", "deploy"]
+    env_file: ../apps/api/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - migrate
+
+  # One-off seed runner — NOT started automatically, and NOT safe to re-run
+  # blindly: most of prisma/seed.ts upserts, but the Super Admin user, its
+  # user_roles row, the default pipeline, the system lead-ingestion user, SLA
+  # policies, and the default KB category all use plain .create() — a second
+  # run crashes on the unique email constraint (at best) or duplicates rows
+  # (at worst). deploycrm.sh only invokes this profile when `users` is empty.
+  # Run manually with: docker compose --profile seed up --build seed
+  seed:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+      target: runtime
+    command: ["node_modules/.bin/tsx", "prisma/seed.ts"]
+    env_file: ../apps/api/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - seed
+
+networks:
+  # Pre-created once on the server (`docker network create gifftai-shared`) and shared
+  # with gifftai_official_web's admin-api service — see the api service's comment above.
+  gifftai-shared:
+    external: true
+
+volumes:
+  gifftai_postgres_data:
+  gifftai_redis_data:
+  gifftai_minio_data:

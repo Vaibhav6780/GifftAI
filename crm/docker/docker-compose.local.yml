@@ -1,0 +1,68 @@
+# Local docker override — runs the full gifftai-crm stack on port 5122.
+# Use with:
+#   docker compose --env-file apps/api/.env.docker.local \
+#     -f docker/docker-compose.yml \
+#     -f docker/docker-compose.prod.yml \
+#     -f docker/docker-compose.local.yml \
+#     up -d --build
+#
+# Differences from prod:
+#   • env_file points to .env.docker.local (has docker service hostnames) instead of .env
+#   • web is exposed on 0.0.0.0:5122 (local access) instead of 127.0.0.1:3014
+#   • api is exposed on 0.0.0.0:4124 for direct-debug access
+#   • gifftai-shared network is created locally (not external) — no gifftai_official_web
+#     sibling stack is required on a dev machine
+#   • postgres/redis/minio get host ports for direct inspection tools
+
+name: gifftai-crm-local
+
+services:
+  postgres:
+    env_file: !override
+      - ../apps/api/.env.docker.local
+    ports: !override
+      - "5433:5432"   # avoid clash with any local postgres on 5432
+
+  redis:
+    ports: !override
+      - "6380:6379"   # avoid clash with any local redis on 6379
+
+  minio:
+    ports: !override
+      - "9010:9000"   # S3 API
+      - "9011:9001"   # MinIO web console  → http://localhost:9011
+
+  minio-init:
+    env_file: !override
+      - ../apps/api/.env.docker.local
+
+  api:
+    env_file: !override
+      - ../apps/api/.env.docker.local
+    ports: !override
+      - "4124:4000"   # direct debug → http://localhost:4124
+    networks:
+      default: {}
+      gifftai-shared: {}
+
+  worker:
+    env_file: !override
+      - ../apps/api/.env.docker.local
+
+  web:
+    ports: !override
+      - "5122:80"     # ← main entry point → http://localhost:5122
+
+  migrate:
+    env_file: !override
+      - ../apps/api/.env.docker.local
+
+  seed:
+    env_file: !override
+      - ../apps/api/.env.docker.local
+
+networks:
+  # Created inline for local dev — no `docker network create gifftai-shared` needed.
+  gifftai-shared:
+    external: false
+    name: gifftai-crm-local_gifftai-shared

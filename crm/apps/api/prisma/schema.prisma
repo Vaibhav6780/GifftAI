@@ -1,0 +1,1484 @@
+// GifftAI CRM — full relational data model (Phase 1: Database Design)
+// Only the Auth/IAM slice is exercised by real endpoints in Phase 1; every other
+// module's tables are modeled now (CRM entities are heavily cross-linked) and get
+// their controllers/UI in their dedicated phase.
+//
+// Cross-cutting pattern: Note / Activity / Attachment / Tag+TagMap are modeled ONCE
+// as shared tables with nullable FKs to whichever entity they attach to, instead of
+// duplicating LeadNote/ContactNote/DealNote/etc. per module.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator dbml {
+  provider = "prisma-dbml-generator"
+  output   = "./dbml"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Enums
+// ────────────────────────────────────────────────────────────────────────────
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum LeadStatus {
+  NEW
+  HOT
+  WARM
+  COLD
+  LOST
+}
+
+// Which product this lead belongs to — GifftAI CRM primarily uses GIFTTAI; SWISDEX is
+// retained in the enum for data compatibility. Add new brands here as they come.
+enum LeadBrand {
+  GIFTTAI
+  SWISDEX
+}
+
+enum KycStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum AddressType {
+  BILLING
+  SHIPPING
+  OTHER
+}
+
+enum DealStatus {
+  OPEN
+  WON
+  LOST
+}
+
+enum TaskType {
+  TASK
+  CALL
+  MEETING
+  FOLLOW_UP
+  EMAIL
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum ChannelType {
+  WHATSAPP
+  TELEGRAM
+  WEBCHAT
+  EMAIL
+  MESSENGER
+  INSTAGRAM
+  LINKEDIN
+}
+
+enum IntegrationStatus {
+  CONNECTED
+  DISCONNECTED
+  ERROR
+  PENDING
+}
+
+enum ConversationStatus {
+  OPEN
+  PENDING
+  RESOLVED
+  CLOSED
+}
+
+enum MessageSenderType {
+  CONTACT
+  AGENT
+  SYSTEM
+}
+
+/// Outbound-message delivery lifecycle, populated by platform status webhooks (e.g. the
+/// WhatsApp/WaHamster `message.status` event) — null for inbound messages, which have no
+/// such lifecycle from our side.
+enum MessageDeliveryStatus {
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
+
+enum TicketStatus {
+  OPEN
+  PENDING
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum EventType {
+  MEETING
+  CALL
+  FOLLOW_UP
+  OTHER
+}
+
+enum AttendeeResponseStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  TENTATIVE
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+  PAUSED
+}
+
+enum CampaignRecipientStatus {
+  PENDING
+  SENT
+  OPENED
+  CLICKED
+  BOUNCED
+  UNSUBSCRIBED
+  FAILED
+}
+
+enum WorkflowTriggerType {
+  LEAD_CREATED
+  LEAD_STATUS_CHANGED
+  DEAL_STAGE_CHANGED
+  TICKET_CREATED
+  TASK_OVERDUE
+  CONTACT_CREATED
+}
+
+enum WorkflowConditionOperator {
+  EQUALS
+  NOT_EQUALS
+  GREATER_THAN
+  LESS_THAN
+  CONTAINS
+  IN
+}
+
+enum WorkflowActionType {
+  SEND_EMAIL
+  CREATE_TASK
+  UPDATE_FIELD
+  ASSIGN_OWNER
+  SEND_NOTIFICATION
+  DELAY
+  WEBHOOK
+}
+
+enum WorkflowRunStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum AttendanceLocation {
+  OFFICE
+  REMOTE
+}
+
+enum AttendanceRequestType {
+  WORK_FROM_HOME
+  LEAVE
+}
+
+enum AttendanceRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// IAM / Auth
+// ────────────────────────────────────────────────────────────────────────────
+
+model User {
+  id              String     @id @default(cuid())
+  email           String     @unique
+  passwordHash    String
+  firstName       String
+  lastName        String
+  phone           String?
+  avatarUrl       String?
+  jobTitle        String?
+  status          UserStatus @default(ACTIVE)
+  isEmailVerified Boolean    @default(false)
+  lastLoginAt     DateTime?
+  departmentId    String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  department Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+
+  userRoles           UserRole[]
+  refreshTokens       RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
+  auditLogs           AuditLog[]
+  notifications       Notification[]
+  managedDepartments  Department[]         @relation("DepartmentManager")
+
+  attendanceSessions AttendanceSession[]
+
+  attendanceRequests         AttendanceRequest[] @relation("AttendanceRequestUser")
+  reviewedAttendanceRequests AttendanceRequest[] @relation("AttendanceRequestReviewer")
+
+  dailyReports DailyReport[]
+
+  ownedLeads     Lead[]        @relation("LeadOwner")
+  ownedContacts  Contact[]     @relation("ContactOwner")
+  ownedCompanies Company[]     @relation("CompanyOwner")
+  ownedDeals     Deal[]        @relation("DealOwner")
+  assignedTasks  Task[]        @relation("TaskAssignee")
+  createdTasks   Task[]        @relation("TaskCreator")
+  taskComments   TaskComment[]
+
+  assignedConversations Conversation[] @relation("ConversationAssignee")
+  assignedTickets       Ticket[]       @relation("TicketAssignee")
+
+  organizedEvents Event[]         @relation("EventOrganizer")
+  eventAttendance EventAttendee[]
+
+  createdCampaigns      Campaign[]
+  createdEmailTemplates EmailTemplate[]
+  createdWorkflows      Workflow[]
+
+  ownedFolders             Folder[]
+  uploadedDocs             Document[]        @relation("DocumentUploader")
+  documentVersionsUploaded DocumentVersion[]
+
+  authoredArticles Article[]
+
+  notes       Note[]
+  activities  Activity[]
+  attachments Attachment[]
+
+  connectedIntegrations IntegrationConnection[]
+
+  @@index([departmentId])
+  @@map("users")
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  isSystem    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  rolePermissions RolePermission[]
+  userRoles       UserRole[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String  @id @default(cuid())
+  key         String  @unique
+  module      String
+  action      String
+  description String?
+
+  rolePermissions RolePermission[]
+
+  @@index([module])
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model UserRole {
+  userId String
+  roleId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+model Department {
+  id        String   @id @default(cuid())
+  name      String
+  parentId  String?
+  managerId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  parent   Department?  @relation("DepartmentTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children Department[] @relation("DepartmentTree")
+  manager  User?        @relation("DepartmentManager", fields: [managerId], references: [id], onDelete: SetNull)
+  users    User[]
+
+  @@index([parentId])
+  @@map("departments")
+}
+
+/// Rotating refresh tokens. The raw token is only ever seen by the client;
+/// only its hash is persisted so a DB leak can't be replayed as a session.
+model RefreshToken {
+  id           String    @id @default(cuid())
+  userId       String
+  tokenHash    String    @unique
+  userAgent    String?
+  ipAddress    String?
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  replacedById String?
+  createdAt    DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+/// One row per explicit Online-to-Offline attendance session. `location` is decided once,
+/// at the moment the user clicks Online, by comparing their public IP against
+/// `OFFICE_PUBLIC_IPS` — see attendance.service.ts's `goOnline`. A user can never have more
+/// than one open (`offlineAt = null`) session at a time: this is enforced not just in the
+/// service (idempotent `goOnline`) but by a hand-written partial unique index living only in
+/// migration `20260811090000_replace_attendance_online_offline` (Prisma's schema DSL can't
+/// express partial indexes) — `CREATE UNIQUE INDEX ... ON attendance_sessions(userId) WHERE
+/// "offlineAt" IS NULL`. Keep that index in mind if this model ever needs a fresh migration
+/// squash; it won't be regenerated automatically from this file.
+model AttendanceSession {
+  id        String             @id @default(cuid())
+  userId    String
+  location  AttendanceLocation
+  ip        String?
+  onlineAt  DateTime           @default(now())
+  offlineAt DateTime?
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  /// The approved exit time from a one-time Overtime Extension (see
+  /// attendance.service.ts::extendOvertime), null until used. Setting this never affects
+  /// `offlineAt` — that always stays the real logout time; overtime itself is still computed
+  /// from `offlineAt` (or "now" while open), not from this field. Non-null here is also the
+  /// one-time-use guard: a second extension request on the same session is rejected once set.
+  extendedExitTime DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, onlineAt])
+  @@index([userId, offlineAt])
+  @@map("attendance_sessions")
+}
+
+/// One row per employee per calendar day requesting Work-From-Home or Leave for that same
+/// day, submitted before the 9:45 AM cutoff (see lib/attendanceRequestCutoff.ts). Approval
+/// is tracked here independently — it no longer affects how AttendanceSession is read
+/// (Office/Remote there is purely IP-based, see attendance.service.ts's `goOnline`).
+model AttendanceRequest {
+  id           String                  @id @default(cuid())
+  userId       String
+  date         DateTime                @db.Date
+  type         AttendanceRequestType
+  reason       String?
+  status       AttendanceRequestStatus @default(PENDING)
+  reviewedById String?
+  reviewedAt   DateTime?
+  reviewNote   String?
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
+
+  user       User  @relation("AttendanceRequestUser", fields: [userId], references: [id], onDelete: Cascade)
+  reviewedBy User? @relation("AttendanceRequestReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  @@unique([userId, date])
+  @@index([status])
+  @@index([date])
+  @@map("attendance_requests")
+}
+
+/// One row per employee per calendar day — a free-text end-of-day summary of what they
+/// worked on. Always today (same "always the current day, no future/past picker" convention
+/// as AttendanceRequest above); submitting again the same day updates the existing row
+/// rather than creating a second one, so an employee can revise it right up until the day
+/// ends. Reachable only from the Tasks page (no dedicated sidebar entry) — see
+/// TasksListPage.tsx's "Day Report"/"Team Day Reports" buttons.
+model DailyReport {
+  id        String   @id @default(cuid())
+  userId    String
+  date      DateTime @db.Date
+  summary   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([date])
+  @@map("daily_reports")
+}
+
+/// Single-use password reset tokens; only the hash is stored.
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+/// entityType/entityId are an intentional loose (non-FK) reference: audit logs must
+/// outlive the row they describe (including hard deletes), so they cannot cascade.
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String
+  entityType String
+  entityId   String
+  oldValue   Json?
+  newValue   Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Leads
+// ────────────────────────────────────────────────────────────────────────────
+
+model LeadSource {
+  id    String @id @default(cuid())
+  name  String @unique
+  leads Lead[]
+
+  @@map("lead_sources")
+}
+
+model Lead {
+  id          String     @id @default(cuid())
+  firstName   String
+  lastName    String
+  email       String?
+  phone       String?
+  company     String?
+  jobTitle    String?
+  status      LeadStatus @default(NEW)
+  score       Int        @default(0)
+  value       Decimal?   @db.Decimal(14, 2)
+  description String?
+  sourceId    String?
+  ownerId     String?
+  /// Which product this lead belongs to (GIFTTAI, SWISDEX, ...). Defaults to GIFTTAI as
+  /// this is the GifftAI CRM — every lead created without an explicit brand is a GifftAI lead.
+  brand       LeadBrand  @default(GIFTTAI)
+
+  needsFollowup Boolean   @default(false)
+  followupDate  DateTime?
+  /// Optional time-of-day for the follow-up, stored separately from followupDate as "HH:mm"
+  /// (24h, local wall-clock time as entered by the user) rather than folded into a combined
+  /// DateTime -- followupDate keeps meaning exactly what it always has (a calendar date, see
+  /// leadsService.update), and null here just means "no specific time was given".
+  followupTime  String?
+
+  /// Timestamp of the last time someone hit "mark as contacted" on this lead (Contacted
+  /// Today page) -- independent of the auto-tracked activity feed (calls/messages/edits),
+  /// since not every tracked action means an actual outreach happened.
+  contactedAt DateTime?
+
+  convertedContactId String?   @unique
+  convertedAt        DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  source           LeadSource? @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+  owner            User?       @relation("LeadOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  convertedContact Contact?    @relation("LeadConvertedContact", fields: [convertedContactId], references: [id], onDelete: SetNull)
+
+  deals       Deal[]
+  tasks       Task[]
+  events      Event[]
+  notes       Note[]
+  activities  Activity[]
+  attachments Attachment[]
+  documents   Document[]
+  tagMaps     TagMap[]
+
+  externalIdentities LeadExternalIdentity[]
+  conversations      Conversation[]
+  followups          LeadFollowup[]
+
+  @@index([ownerId, status])
+  @@index([sourceId])
+  @@index([createdAt])
+  @@index([brand])
+  @@map("leads")
+}
+
+/// One row per follow-up "engagement" on a lead, independent of Lead.needsFollowup/
+/// followupDate (which only ever describe the CURRENT state) -- this is the persistent,
+/// date-aware history the Follow-ups Due page's Complete/Incomplete filter reads from.
+/// At most one open (completedAt IS NULL) row per lead at a time, mirroring the single-slot
+/// invariant Lead.needsFollowup/followupDate already enforces. See leadsService.update's
+/// followupChanging block for how rows are created/updated/closed.
+model LeadFollowup {
+  id           String    @id @default(cuid())
+  leadId       String
+  followupDate DateTime
+  /// Mirrors Lead.followupTime ("HH:mm" or null) as of whenever this engagement's due date
+  /// was last set/moved -- see recordFollowupHistory.
+  followupTime String?
+  completedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+  @@index([followupDate])
+  @@map("lead_followups")
+}
+
+/// Per-channel identity linking a Lead to the platform account that messaged it (e.g. a
+/// Telegram chat id or Instagram-scoped user id). Kept as its own table rather than columns
+/// on Lead because identity is inherently per-channel and multi-valued — the same Lead can
+/// message via more than one platform, each with its own handle/URL/external id.
+model LeadExternalIdentity {
+  id             String      @id @default(cuid())
+  leadId         String
+  channelType    ChannelType
+  externalUserId String
+  username       String?
+  profileUrl     String?
+  lastMessageAt  DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@unique([channelType, externalUserId])
+  @@index([leadId])
+  @@map("lead_external_identities")
+}
+
+/// One row per connected inbound-lead platform (Website/Instagram/WhatsApp/LinkedIn/
+/// Telegram). Singleton per channelType — this CRM connects to exactly one account per
+/// platform. Tokens are always ciphertext (lib/crypto.ts); never stored or returned plain.
+model IntegrationConnection {
+  id                String            @id @default(cuid())
+  channelType       ChannelType       @unique
+  channelId         String?
+  status            IntegrationStatus @default(DISCONNECTED)
+  accessTokenEnc    String?
+  refreshTokenEnc   String?
+  tokenExpiresAt    DateTime?
+  externalAccountId String?
+  config            Json?
+  lastSyncedAt      DateTime?
+  lastError         String?
+  connectedByUserId String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  channel     Channel? @relation(fields: [channelId], references: [id], onDelete: SetNull)
+  connectedBy User?    @relation(fields: [connectedByUserId], references: [id], onDelete: SetNull)
+
+  @@map("integration_connections")
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Contacts / Companies
+// ────────────────────────────────────────────────────────────────────────────
+
+model Contact {
+  id        String    @id @default(cuid())
+  firstName String
+  lastName  String
+  email     String?
+  phone     String?
+  jobTitle  String?
+  avatarUrl String?
+  kycStatus KycStatus @default(PENDING)
+  companyId String?
+  ownerId   String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  company Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  owner   User?    @relation("ContactOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+
+  convertedFromLead Lead? @relation("LeadConvertedContact")
+
+  addresses          Address[]
+  deals              Deal[]
+  tasks              Task[]
+  events             Event[]
+  conversations      Conversation[]
+  tickets            Ticket[]
+  campaignRecipients CampaignRecipient[]
+  notes              Note[]
+  activities         Activity[]
+  attachments        Attachment[]
+  documents          Document[]
+  tagMaps            TagMap[]
+
+  @@index([companyId])
+  @@index([ownerId])
+  @@map("contacts")
+}
+
+model Company {
+  id          String   @id @default(cuid())
+  name        String
+  domain      String?
+  industry    String?
+  size        String?
+  website     String?
+  phone       String?
+  description String?
+  ownerId     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  owner User? @relation("CompanyOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+
+  employees   Contact[]
+  deals       Deal[]
+  addresses   Address[]
+  notes       Note[]
+  activities  Activity[]
+  attachments Attachment[]
+  documents   Document[]
+
+  @@index([ownerId])
+  @@map("companies")
+}
+
+model Address {
+  id        String      @id @default(cuid())
+  contactId String?
+  companyId String?
+  type      AddressType @default(OTHER)
+  line1     String
+  line2     String?
+  city      String?
+  state     String?
+  country   String?
+  zip       String?
+  createdAt DateTime    @default(now())
+
+  contact Contact? @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([contactId])
+  @@index([companyId])
+  @@map("addresses")
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Sales Pipeline
+// ────────────────────────────────────────────────────────────────────────────
+
+model Pipeline {
+  id        String   @id @default(cuid())
+  name      String
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  stages PipelineStage[]
+  deals  Deal[]
+
+  @@map("pipelines")
+}
+
+model PipelineStage {
+  id          String  @id @default(cuid())
+  pipelineId  String
+  name        String
+  order       Int
+  probability Int     @default(0)
+  isWon       Boolean @default(false)
+  isLost      Boolean @default(false)
+
+  pipeline Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  deals    Deal[]
+
+  @@index([pipelineId])
+  @@map("pipeline_stages")
+}
+
+model Deal {
+  id                String     @id @default(cuid())
+  title             String
+  pipelineId        String
+  stageId           String
+  contactId         String?
+  companyId         String?
+  leadId            String?
+  ownerId           String?
+  value             Decimal    @db.Decimal(14, 2)
+  currency          String     @default("USD")
+  status            DealStatus @default(OPEN)
+  expectedCloseDate DateTime?
+  lostReason        String?
+  closedAt          DateTime?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  pipeline Pipeline      @relation(fields: [pipelineId], references: [id], onDelete: Restrict)
+  stage    PipelineStage @relation(fields: [stageId], references: [id], onDelete: Restrict)
+  contact  Contact?      @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  company  Company?      @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  lead     Lead?         @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  owner    User?         @relation("DealOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+
+  tasks       Task[]
+  events      Event[]
+  notes       Note[]
+  activities  Activity[]
+  attachments Attachment[]
+  documents   Document[]
+  tagMaps     TagMap[]
+
+  @@index([ownerId, status])
+  @@index([pipelineId, stageId])
+  @@map("deals")
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Tasks
+// ────────────────────────────────────────────────────────────────────────────
+
+model Task {
+  id             String       @id @default(cuid())
+  title          String
+  description    String?
+  type           TaskType     @default(TASK)
+  priority       TaskPriority @default(MEDIUM)
+  status         TaskStatus   @default(PENDING)
+  dueAt          DateTime?
+  completedAt    DateTime?
+  recurrenceRule String?
+  parentTaskId   String?
+  assignedToId   String?
+  createdById    String
+  leadId         String?
+  contactId      String?
+  dealId         String?
+  ticketId       String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  parentTask Task?  @relation("TaskRecurrence", fields: [parentTaskId], references: [id], onDelete: SetNull)
+  children   Task[] @relation("TaskRecurrence")
+
+  assignedTo User? @relation("TaskAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  createdBy  User  @relation("TaskCreator", fields: [createdById], references: [id], onDelete: Restrict)
+
+  lead    Lead?    @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  contact Contact? @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  deal    Deal?    @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  ticket  Ticket?  @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  comments    TaskComment[]
+  attachments Attachment[]
+
+  @@index([assignedToId, status])
+  @@index([dueAt])
+  @@map("tasks")
+}
+
+model TaskComment {
+  id        String   @id @default(cuid())
+  taskId    String
+  userId    String
+  body      String
+  createdAt DateTime @default(now())
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@map("task_comments")
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Omnichannel Inbox
+// ────────────────────────────────────────────────────────────────────────────
+
+model Channel {
+  id        String      @id @default(cuid())
+  type      ChannelType
+  name      String
+  config    Json?
+  isActive  Boolean     @default(true)
+  createdAt DateTime    @default(now())
+
+  conversations          Conversation[]
+  integrationConnections IntegrationConnection[]
+
+  @@map("channels")
+}
+
+model Conversation {
+  id                     String             @id @default(cuid())
+  channelId              String
+  contactId              String?
+  leadId                 String?
+  externalConversationId String?
+  subject                String?
+  status                 ConversationStatus @default(OPEN)
+  assignedToId           String?
+  lastMessageAt          DateTime?
+  unreadCount            Int                @default(0)
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+
+  channel    Channel  @relation(fields: [channelId], references: [id], onDelete: Restrict)
+  contact    Contact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  lead       Lead?    @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  assignedTo User?    @relation("ConversationAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  messages    Message[]
+  attachments Attachment[]
+  tagMaps     TagMap[]
+
+  @@unique([channelId, externalConversationId])
+  @@index([channelId, status])
+  @@index([assignedToId])
+  @@index([leadId])
+  @@map("conversations")
+}
+
+model Message {
+  id             String                 @id @default(cuid())
+  conversationId String
+  senderType     MessageSenderType
+  /// References either User.id or Contact.id depending on senderType — intentionally
+  /// not a strict FK since the sender's identity table varies.
+  senderId       String?
+  externalId     String?
+  body           String
+  isInternalNote Boolean                @default(false)
+  isRead         Boolean                @default(false)
+  deliveryStatus MessageDeliveryStatus?
+  createdAt      DateTime               @default(now())
+
+  conversation Conversation        @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  attachments  Attachment[]
+  emailDetail  EmailMessageDetail?
+
+  @@unique([conversationId, externalId])
+  @@index([conversationId])
+  @@map("messages")
+}
+
+/// Hostinger-Mail-specific structured fields for a Message on the EMAIL channel — kept as
+/// its own table (rather than columns on the shared Message model every channel writes into)
+/// so WhatsApp/Telegram/Instagram rows never carry email-only nulls. hostingerMessageId is
+/// the RFC822 Message-Id header, globally unique across the whole mailbox (unlike
+/// Message.externalId, which is only unique per-conversation) — this is what satisfies
+/// "prevent duplicate webhook processing", since hostingerInbound.processor.ts always
+/// upserts on this key regardless of which Conversation a message ends up threaded into.
+/// hostingerUid/hostingerFolder are the {uid, folder} pair the Hostinger Send API's
+/// inReplyTo/forwardOf refs need — see hostingerMail.repository.ts.
+model EmailMessageDetail {
+  id                 String   @id @default(cuid())
+  messageId          String   @unique
+  hostingerMessageId String   @unique
+  hostingerFolder    String
+  hostingerUid       Int
+  /// Which of the 8 mailbox addresses (support@ or one of its 7 aliases) this message came
+  /// in on / was sent as — resolved from the `to` header for inbound, or the chosen From
+  /// alias for outbound.
+  mailboxAddress     String
+  fromAddress        String?
+  fromName           String?
+  toAddresses        Json
+  ccAddresses        Json?
+  bccAddresses       Json?
+  inReplyToMessageId String?
+  hasAttachments     Boolean  @default(false)
+  createdAt          DateTime @default(now())
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([hostingerFolder, hostingerUid])
+  @@map("email_message_details")
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Ticket System
+// ────────────────────────────────────────────────────────────────────────────
+
+model TicketCategory {
+  id      String   @id @default(cuid())
+  name    String   @unique
+  tickets Ticket[]
+
+  @@map("ticket_categories")
+}
+
+model SLAPolicy {
+  id                   String         @id @default(cuid())
+  name                 String
+  priority             TicketPriority
+  firstResponseMinutes Int
+  resolutionMinutes    Int
+  createdAt            DateTime       @default(now())
+
+  tickets Ticket[]
+
+  @@map("sla_policies")
+}
+
+model Ticket {
+  id             String         @id @default(cuid())
+  subject        String
+  description    String?
+  status         TicketStatus   @default(OPEN)
+  priority       TicketPriority @default(MEDIUM)
+  categoryId     String?
+  contactId      String?
+  requesterEmail String?
+  assignedToId   String?
+  slaId          String?
+  dueAt          DateTime?
+  resolvedAt     DateTime?
+  closedAt       DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  category   TicketCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  contact    Contact?        @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  assignedTo User?           @relation("TicketAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  sla        SLAPolicy?      @relation(fields: [slaId], references: [id], onDelete: SetNull)
+
+  tasks       Task[]
+  notes       Note[]
+  activities  Activity[]
+  attachments Attachment[]
+  tagMaps     TagMap[]
+
+  @@index([assignedToId, status])
+  @@index([categoryId])
+  @@map("tickets")
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Calendar
+// ────────────────────────────────────────────────────────────────────────────
+
+model Event {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  type        EventType @default(MEETING)
+  startAt     DateTime
+  endAt       DateTime
+  location    String?
+  isAllDay    Boolean   @default(false)
+  organizerId String
+  leadId      String?
+  contactId   String?
+  dealId      String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  organizer User     @relation("EventOrganizer", fields: [organizerId], references: [id], onDelete: Restrict)
+  lead      Lead?    @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  contact   Contact? @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  deal      Deal?    @relation(fields: [dealId], references: [id], onDelete: Cascade)
+
+  attendees EventAttendee[]
+
+  @@index([organizerId])
+  @@index([startAt])
+  @@map("events")
+}
+
+model EventAttendee {
+  id             String                 @id @default(cuid())
+  eventId        String
+  userId         String?
+  contactEmail   String?
+  responseStatus AttendeeResponseStatus @default(PENDING)
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+  @@map("event_attendees")
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Marketing
+// ────────────────────────────────────────────────────────────────────────────
+
+model EmailTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  subject     String
+  bodyHtml    String
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  createdBy User       @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  campaigns Campaign[]
+
+  @@map("email_templates")
+}
+
+model Segment {
+  id         String   @id @default(cuid())
+  name       String
+  filterJson Json
+  createdAt  DateTime @default(now())
+
+  campaigns Campaign[]
+
+  @@map("segments")
+}
+
+model Campaign {
+  id          String         @id @default(cuid())
+  name        String
+  status      CampaignStatus @default(DRAFT)
+  templateId  String?
+  segmentId   String?
+  scheduledAt DateTime?
+  sentAt      DateTime?
+  createdById String
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  template  EmailTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  segment   Segment?       @relation(fields: [segmentId], references: [id], onDelete: SetNull)
+  createdBy User           @relation(fields: [createdById], references: [id], onDelete: Restrict)
+
+  recipients CampaignRecipient[]
+
+  @@index([status])
+  @@map("campaigns")
+}
+
+model CampaignRecipient {
+  id         String                  @id @default(cuid())
+  campaignId String
+  contactId  String
+  status     CampaignRecipientStatus @default(PENDING)
+  sentAt     DateTime?
+  openedAt   DateTime?
+  clickedAt  DateTime?
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  contact  Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, contactId])
+  @@index([contactId])
+  @@map("campaign_recipients")
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Automation
+// ────────────────────────────────────────────────────────────────────────────
+
+model Workflow {
+  id          String              @id @default(cuid())
+  name        String
+  description String?
+  triggerType WorkflowTriggerType
+  isActive    Boolean             @default(true)
+  createdById String
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  createdBy  User                @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  conditions WorkflowCondition[]
+  actions    WorkflowAction[]
+  runs       WorkflowRun[]
+
+  @@index([triggerType, isActive])
+  @@map("workflows")
+}
+
+model WorkflowCondition {
+  id         String                    @id @default(cuid())
+  workflowId String
+  field      String
+  operator   WorkflowConditionOperator
+  value      Json
+
+  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  @@index([workflowId])
+  @@map("workflow_conditions")
+}
+
+model WorkflowAction {
+  id         String             @id @default(cuid())
+  workflowId String
+  order      Int
+  actionType WorkflowActionType
+  config     Json
+
+  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  @@index([workflowId])
+  @@map("workflow_actions")
+}
+
+model WorkflowRun {
+  id         String            @id @default(cuid())
+  workflowId String
+  entityType String
+  entityId   String
+  status     WorkflowRunStatus @default(PENDING)
+  startedAt  DateTime          @default(now())
+  finishedAt DateTime?
+  error      String?
+
+  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  @@index([workflowId])
+  @@index([entityType, entityId])
+  @@map("workflow_runs")
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Notifications
+// ────────────────────────────────────────────────────────────────────────────
+
+/// type is a free-form string convention (e.g. "task.assigned", "lead.assigned") rather
+/// than an enum, since new notification kinds are added by nearly every later phase.
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  body      String?
+  link      String?
+  isRead    Boolean   @default(false)
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@map("notifications")
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Documents
+// ────────────────────────────────────────────────────────────────────────────
+
+model Folder {
+  id        String   @id @default(cuid())
+  name      String
+  parentId  String?
+  ownerId   String
+  createdAt DateTime @default(now())
+
+  parent   Folder?  @relation("FolderTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children Folder[] @relation("FolderTree")
+  owner    User     @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+
+  documents Document[]
+
+  @@index([parentId])
+  @@map("folders")
+}
+
+model Document {
+  id           String   @id @default(cuid())
+  folderId     String?
+  name         String
+  fileKey      String
+  fileUrl      String
+  mimeType     String
+  size         Int
+  uploadedById String
+  leadId       String?
+  contactId    String?
+  companyId    String?
+  dealId       String?
+  ticketId     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  folder     Folder?  @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  uploadedBy User     @relation("DocumentUploader", fields: [uploadedById], references: [id], onDelete: Restrict)
+  lead       Lead?    @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  contact    Contact? @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  company    Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  deal       Deal?    @relation(fields: [dealId], references: [id], onDelete: Cascade)
+
+  versions DocumentVersion[]
+
+  @@index([folderId])
+  @@map("documents")
+}
+
+model DocumentVersion {
+  id            String   @id @default(cuid())
+  documentId    String
+  fileKey       String
+  size          Int
+  versionNumber Int
+  uploadedById  String
+  createdAt     DateTime @default(now())
+
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  uploadedBy User     @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
+
+  @@unique([documentId, versionNumber])
+  @@map("document_versions")
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Knowledge Base
+// ────────────────────────────────────────────────────────────────────────────
+
+model KbCategory {
+  id       String  @id @default(cuid())
+  name     String
+  parentId String?
+
+  parent   KbCategory?  @relation("KbCategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children KbCategory[] @relation("KbCategoryTree")
+  articles Article[]
+  faqs     FAQ[]
+
+  @@index([parentId])
+  @@map("kb_categories")
+}
+
+model Article {
+  id         String        @id @default(cuid())
+  categoryId String?
+  title      String
+  slug       String        @unique
+  bodyHtml   String
+  status     ArticleStatus @default(DRAFT)
+  authorId   String
+  viewCount  Int           @default(0)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  category KbCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  author   User        @relation(fields: [authorId], references: [id], onDelete: Restrict)
+
+  @@index([categoryId, status])
+  @@map("articles")
+}
+
+model FAQ {
+  id         String  @id @default(cuid())
+  categoryId String?
+  question   String
+  answer     String
+  order      Int     @default(0)
+
+  category KbCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([categoryId])
+  @@map("faqs")
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Shared: Notes / Activity / Attachments / Tags
+// ────────────────────────────────────────────────────────────────────────────
+
+model Note {
+  id        String   @id @default(cuid())
+  body      String
+  userId    String
+  leadId    String?
+  contactId String?
+  companyId String?
+  dealId    String?
+  ticketId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lead    Lead?    @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  contact Contact? @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  deal    Deal?    @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  ticket  Ticket?  @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+  @@index([contactId])
+  @@index([companyId])
+  @@index([dealId])
+  @@index([ticketId])
+  @@map("notes")
+}
+
+/// Auto-generated timeline entries (status changes, calls logged, emails sent, ...).
+/// type is a free-form string convention, same rationale as Notification.type.
+model Activity {
+  id          String   @id @default(cuid())
+  type        String
+  description String
+  metadata    Json?
+  userId      String?
+  leadId      String?
+  contactId   String?
+  companyId   String?
+  dealId      String?
+  ticketId    String?
+  createdAt   DateTime @default(now())
+
+  user    User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  lead    Lead?    @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  contact Contact? @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  deal    Deal?    @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  ticket  Ticket?  @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+  @@index([contactId])
+  @@index([companyId])
+  @@index([dealId])
+  @@index([ticketId])
+  @@index([createdAt])
+  @@map("activities")
+}
+
+model Attachment {
+  id             String   @id @default(cuid())
+  fileName       String
+  fileKey        String
+  fileUrl        String
+  mimeType       String
+  size           Int
+  uploadedById   String
+  leadId         String?
+  contactId      String?
+  companyId      String?
+  dealId         String?
+  ticketId       String?
+  taskId         String?
+  conversationId String?
+  messageId      String?
+  createdAt      DateTime @default(now())
+
+  uploadedBy   User          @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
+  lead         Lead?         @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  contact      Contact?      @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  company      Company?      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  deal         Deal?         @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  ticket       Ticket?       @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  task         Task?         @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  conversation Conversation? @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  message      Message?      @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+  @@index([contactId])
+  @@index([companyId])
+  @@index([dealId])
+  @@index([ticketId])
+  @@index([taskId])
+  @@index([conversationId])
+  @@map("attachments")
+}
+
+model Tag {
+  id    String @id @default(cuid())
+  name  String @unique
+  color String @default("#6366F1")
+
+  tagMaps TagMap[]
+
+  @@map("tags")
+}
+
+/// One row links one Tag to exactly one taggable entity. Kept as explicit nullable
+/// FKs per entity type (rather than a fully polymorphic entityId) so referential
+/// integrity is enforced by Postgres, matching the Note/Activity/Attachment pattern.
+model TagMap {
+  id             String  @id @default(cuid())
+  tagId          String
+  leadId         String?
+  contactId      String?
+  dealId         String?
+  conversationId String?
+  ticketId       String?
+
+  tag          Tag           @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  lead         Lead?         @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  contact      Contact?      @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  deal         Deal?         @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  conversation Conversation? @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  ticket       Ticket?       @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([tagId])
+  @@index([leadId])
+  @@index([contactId])
+  @@index([dealId])
+  @@index([conversationId])
+  @@index([ticketId])
+  @@map("tag_maps")
+}
