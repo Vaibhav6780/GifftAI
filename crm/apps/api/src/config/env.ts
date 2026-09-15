@@ -105,7 +105,7 @@ const envSchema = z.object({
   // modules/rm-requests/websiteAdminClient.ts. Both left optional so the server boots
   // fine unconfigured; the RM Requests pages simply show "not connected" until set,
   // same convention as META_APP_ID/WAHAMSTER above.
-  WEBSITE_ADMIN_API_URL: z.string().url().optional(),
+  WEBSITE_ADMIN_API_URL: z.string().url().optional().or(z.literal("")),
   WEBSITE_ADMIN_SERVICE_KEY: z.string().optional(),
 
   // Public origin of the marketing site (gifftai.com). Blog / CMS (modules/blog) proxies
