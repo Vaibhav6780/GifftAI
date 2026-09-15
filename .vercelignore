@@ -1,0 +1,3 @@
+# Vercel should only build the Next.js main site (src/).
+# The CRM is a separate full-stack app deployed via Docker on the VPS — not Vercel.
+crm
