@@ -27,13 +27,13 @@ cd "$REPO_ROOT"
 # `git pull --ff-only` — this exact failure has already recurred across multiple
 # sessions (see HANDOVER.md's 2026-08-09 and 2026-08-10 entries; traced via file mtimes
 # to a root-run deploy on 2026-08-07). Fail fast here instead of letting it happen again.
-if [[ "$(id -un)" != "gifftai" ]]; then
-  echo "FATAL: this script must run as the 'gifftai' user, not '$(id -un)'."
+if [[ "$(id -un)" != "gifftai" && "$(id -un)" != "swisdex" ]]; then
+  echo "FATAL: this script must run as 'swisdex' or 'gifftai', not '$(id -un)'."
   echo "       Running it as root (or any other user) leaves files root-owned, which"
   echo "       breaks the *next* deploy's 'git pull --ff-only' with a permission error."
-  echo "       Run it as: su - gifftai -c '$REPO_ROOT/scripts/deploycrm.sh $*'"
+  echo "       Run it as: su - swisdex -c '$REPO_ROOT/scripts/deploygifftai.sh $*'"
   echo "       If ownership is already broken, first run as root:"
-  echo "         chown -R gifftai:gifftai $REPO_ROOT"
+  echo "         chown -R swisdex:swisdex $REPO_ROOT"
   exit 1
 fi
 

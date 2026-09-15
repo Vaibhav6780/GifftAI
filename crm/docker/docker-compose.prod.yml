@@ -93,7 +93,7 @@ services:
       redis:
         condition: service_healthy
     ports:
-      - "127.0.0.1:4004:4000"
+      - "127.0.0.1:4005:4000"
     # RM Requests (apps/api/src/modules/rm-requests) calls gifftai_official_web's admin-api.
     # That container's port is published as 127.0.0.1:8003:8001 — deliberately loopback-only
     # so it's never reachable from the public internet — but Docker's loopback-scoped port
